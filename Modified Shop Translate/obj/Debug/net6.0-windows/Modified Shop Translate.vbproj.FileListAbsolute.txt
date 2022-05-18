@@ -1,0 +1,18 @@
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\bin\Debug\net6.0-windows\Modified Shop Translate.exe
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\bin\Debug\net6.0-windows\Modified Shop Translate.deps.json
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\bin\Debug\net6.0-windows\Modified Shop Translate.runtimeconfig.json
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\bin\Debug\net6.0-windows\Modified Shop Translate.dll
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\bin\Debug\net6.0-windows\Modified Shop Translate.pdb
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.vbproj.AssemblyReference.cache
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified_Shop_Translate.FormMain.resources
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.vbproj.GenerateResource.cache
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.AssemblyInfoInputs.cache
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.AssemblyInfo.vb
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.vbproj.CoreCompileInputs.cache
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.dll
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\refint\Modified Shop Translate.dll
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.pdb
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified Shop Translate.genruntimeconfig.cache
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\ref\Modified Shop Translate.dll
+C:\Users\j.trees\Source\Repos\Modified Shop Translate\Modified Shop Translate\obj\Debug\net6.0-windows\Modified_Shop_Translate.FormSetDirectoryShop.resources
