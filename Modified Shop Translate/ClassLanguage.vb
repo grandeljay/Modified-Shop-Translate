@@ -1,6 +1,7 @@
 ﻿Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Net
+Imports System.Globalization
 
 Public Class ClassLanguage
 
@@ -312,6 +313,15 @@ Public Class ClassLanguage
         ' Directories
         Me.DirectoryPath = LanguageDirectory
         Me.Name = Path.GetFileName(Me.DirectoryPath)
+
+        'For Each Culture As CultureInfo In CultureInfo.GetCultures(CultureTypes.AllCultures)
+        '    If Culture.NativeName.ToLower().Contains(Me.Name.ToLower()) _
+        '    Or Culture.EnglishName.ToLower().Contains(Me.Name.ToLower()) _
+        '    Or Culture.DisplayName.ToLower().Contains(Me.Name.ToLower()) _
+        '    Then
+        '        Debug.WriteLine(Culture)
+        '    End If
+        'Next
 
         Select Case Me.Name.ToLower()
             Case "bulgarian" : Me.Locale = "bg-BG"
