@@ -93,7 +93,7 @@ Public Class FormMain
         Lines.Add(ClassTranslationPO.WriteLine("PO-Revision-Date: \n"))
         Lines.Add(ClassTranslationPO.WriteLine("Last-Translator: \n"))
         Lines.Add(ClassTranslationPO.WriteLine("Language-Team: \n"))
-        Lines.Add(ClassTranslationPO.WriteLine("Language: en\n"))
+        Lines.Add(ClassTranslationPO.WriteLine("Language: " & Settings.LanguageTarget.Locale & "\n"))
         Lines.Add(ClassTranslationPO.WriteLine("MIME-Version: 1.0\n"))
         Lines.Add(ClassTranslationPO.WriteLine("Content-Type: text/plain; charset=UTF-8\n"))
         Lines.Add(ClassTranslationPO.WriteLine("Content-Transfer-Encoding: 8bit\n"))
