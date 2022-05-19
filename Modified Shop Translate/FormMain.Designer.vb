@@ -33,7 +33,7 @@ Partial Class FormMain
         'LabelLanguageSource
         '
         Me.LabelLanguageSource.AutoSize = True
-        Me.LabelLanguageSource.Location = New System.Drawing.Point(12, 9)
+        Me.LabelLanguageSource.Location = New System.Drawing.Point(23, 20)
         Me.LabelLanguageSource.Name = "LabelLanguageSource"
         Me.LabelLanguageSource.Size = New System.Drawing.Size(112, 15)
         Me.LabelLanguageSource.TabIndex = 0
@@ -42,7 +42,7 @@ Partial Class FormMain
         'LabelLanguageTarget
         '
         Me.LabelLanguageTarget.AutoSize = True
-        Me.LabelLanguageTarget.Location = New System.Drawing.Point(168, 9)
+        Me.LabelLanguageTarget.Location = New System.Drawing.Point(179, 20)
         Me.LabelLanguageTarget.Name = "LabelLanguageTarget"
         Me.LabelLanguageTarget.Size = New System.Drawing.Size(107, 15)
         Me.LabelLanguageTarget.TabIndex = 1
@@ -52,7 +52,7 @@ Partial Class FormMain
         '
         Me.ComboBoxLanguageSource.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBoxLanguageSource.FormattingEnabled = True
-        Me.ComboBoxLanguageSource.Location = New System.Drawing.Point(12, 27)
+        Me.ComboBoxLanguageSource.Location = New System.Drawing.Point(23, 38)
         Me.ComboBoxLanguageSource.Name = "ComboBoxLanguageSource"
         Me.ComboBoxLanguageSource.Size = New System.Drawing.Size(150, 23)
         Me.ComboBoxLanguageSource.TabIndex = 2
@@ -61,7 +61,7 @@ Partial Class FormMain
         '
         Me.ComboBoxLanguageTarget.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBoxLanguageTarget.FormattingEnabled = True
-        Me.ComboBoxLanguageTarget.Location = New System.Drawing.Point(168, 27)
+        Me.ComboBoxLanguageTarget.Location = New System.Drawing.Point(179, 38)
         Me.ComboBoxLanguageTarget.Name = "ComboBoxLanguageTarget"
         Me.ComboBoxLanguageTarget.Size = New System.Drawing.Size(150, 23)
         Me.ComboBoxLanguageTarget.TabIndex = 3
@@ -70,7 +70,7 @@ Partial Class FormMain
         '
         Me.ButtonCreatePO.AutoSize = True
         Me.ButtonCreatePO.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ButtonCreatePO.Location = New System.Drawing.Point(12, 56)
+        Me.ButtonCreatePO.Location = New System.Drawing.Point(23, 93)
         Me.ButtonCreatePO.MinimumSize = New System.Drawing.Size(0, 24)
         Me.ButtonCreatePO.Name = "ButtonCreatePO"
         Me.ButtonCreatePO.Size = New System.Drawing.Size(79, 25)
@@ -82,7 +82,7 @@ Partial Class FormMain
         '
         Me.ButtonUpdateTranslations.AutoSize = True
         Me.ButtonUpdateTranslations.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ButtonUpdateTranslations.Location = New System.Drawing.Point(97, 56)
+        Me.ButtonUpdateTranslations.Location = New System.Drawing.Point(108, 93)
         Me.ButtonUpdateTranslations.MinimumSize = New System.Drawing.Size(0, 24)
         Me.ButtonUpdateTranslations.Name = "ButtonUpdateTranslations"
         Me.ButtonUpdateTranslations.Size = New System.Drawing.Size(130, 25)
@@ -94,7 +94,7 @@ Partial Class FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(333, 89)
+        Me.ClientSize = New System.Drawing.Size(360, 139)
         Me.Controls.Add(Me.ButtonUpdateTranslations)
         Me.Controls.Add(Me.ButtonCreatePO)
         Me.Controls.Add(Me.ComboBoxLanguageTarget)
@@ -105,6 +105,7 @@ Partial Class FormMain
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
         Me.Name = "FormMain"
+        Me.Padding = New System.Windows.Forms.Padding(20)
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Modified Shop Translate"
         Me.ResumeLayout(False)
