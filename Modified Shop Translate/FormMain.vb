@@ -141,7 +141,7 @@ Public Class FormMain
 
         Dim CurrentSection As String = ""
 
-        For Each TranslationConf As ClassTranslationConf In Settings.LanguageSource.TranslationsConf
+        For Each TranslationConf As ClassTranslationConf In Settings.LanguageTarget.TranslationsConf
             If CurrentSection <> TranslationConf.Section Then
                 Lines.Add("")
                 Lines.Add("[" & TranslationConf.Section & "]")

@@ -11,7 +11,7 @@ Public Class ClassTranslationDefine
     ''' <returns>String</returns>
     Public Function GetOriginalTranslated(TranslationToUse As String) As String
         If Me.Value Is "" Then
-            Return ""
+            Return Me.Original
         End If
 
         Dim Translation As String = Me.Original

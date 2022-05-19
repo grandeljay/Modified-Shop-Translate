@@ -85,7 +85,8 @@ Public Class ClassTranslationPO
 
         ' Remove slashes
         Dim ChractersToUnescape As New List(Of String) From {
-            Chr(34)
+            Chr(34),
+            "'"
         }
 
         For Each ChracterToUnescape As String In ChractersToUnescape
