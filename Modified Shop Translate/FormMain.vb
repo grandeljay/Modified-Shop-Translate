@@ -86,8 +86,18 @@ Public Class FormMain
     Private Sub CreatePO()
         Dim Lines As New List(Of String)
 
-        Lines.Add("msgid " & Chr(34) & Chr(34))
-        Lines.Add("msgstr " & Chr(34) & Chr(34))
+        Lines.Add(ClassTranslationPO.WriteLine("", ClassTranslationPO.StringType.MSGID))
+        Lines.Add(ClassTranslationPO.WriteLine("", ClassTranslationPO.StringType.MSGSTR))
+        Lines.Add(ClassTranslationPO.WriteLine("Project-Id-Version: \n"))
+        Lines.Add(ClassTranslationPO.WriteLine("POT-Creation-Date: \n"))
+        Lines.Add(ClassTranslationPO.WriteLine("PO-Revision-Date: \n"))
+        Lines.Add(ClassTranslationPO.WriteLine("Last-Translator: \n"))
+        Lines.Add(ClassTranslationPO.WriteLine("Language-Team: \n"))
+        Lines.Add(ClassTranslationPO.WriteLine("Language: en\n"))
+        Lines.Add(ClassTranslationPO.WriteLine("MIME-Version: 1.0\n"))
+        Lines.Add(ClassTranslationPO.WriteLine("Content-Type: text/plain; charset=UTF-8\n"))
+        Lines.Add(ClassTranslationPO.WriteLine("Content-Transfer-Encoding: 8bit\n"))
+        Lines.Add(ClassTranslationPO.WriteLine("X-Generator: Modified Shop Translate " & Application.ProductVersion))
         Lines.Add("")
 
         ' Conf
@@ -95,12 +105,12 @@ Public Class FormMain
             Dim TranslationPO As New ClassTranslationPO With {
                 .Context = ClassTranslationPO.ToPo(TranslationConf.GetContext()),
                 .ID = ClassTranslationPO.ToPo(TranslationConf.Value),
-                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslation(TranslationConf.Value))
+                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslation(TranslationConf.Value, TranslationConf.GetContext()))
             }
 
-            Lines.Add("msgctxt " & Chr(34) & TranslationPO.Context & Chr(34))
-            Lines.Add("msgid " & Chr(34) & TranslationPO.ID & Chr(34))
-            Lines.Add("msgstr " & Chr(34) & TranslationPO.Translation & Chr(34))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.ID, ClassTranslationPO.StringType.MSGID))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Translation, ClassTranslationPO.StringType.MSGSTR))
             Lines.Add("")
         Next
 
@@ -109,12 +119,12 @@ Public Class FormMain
             Dim TranslationPO As New ClassTranslationPO With {
                 .Context = ClassTranslationPO.ToPo(TranslationDefine.GetContext()),
                 .ID = ClassTranslationPO.ToPo(TranslationDefine.Value),
-                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslation(TranslationDefine.Value))
+                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslation(TranslationDefine.Value, TranslationDefine.GetContext()))
             }
 
-            Lines.Add("msgctxt " & Chr(34) & TranslationPO.Context & Chr(34))
-            Lines.Add("msgid " & Chr(34) & TranslationPO.ID & Chr(34))
-            Lines.Add("msgstr " & Chr(34) & TranslationPO.Translation & Chr(34))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.ID, ClassTranslationPO.StringType.MSGID))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Translation, ClassTranslationPO.StringType.MSGSTR))
             Lines.Add("")
         Next
 

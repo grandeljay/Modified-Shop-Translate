@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Text.RegularExpressions
+Imports System.Net
 
 Public Class ClassLanguage
 
@@ -14,19 +15,22 @@ Public Class ClassLanguage
         Throw New System.Exception("Unable to find language " & Chr(34) & LanguageNameToFind & Chr(34) & ".")
     End Function
 
-    Public Shared Function GetTranslation(TextToTranslate As String, Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
+    Public Shared Function GetTranslation(TextToTranslate As String, Optional Context As String = Nothing, Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
         If LanguageSource Is Nothing Then LanguageSource = FormMain.Settings.LanguageSource
         If LanguageTarget Is Nothing Then LanguageTarget = FormMain.Settings.LanguageTarget
 
         ' Search PO
-        For Each SourcePO As ClassTranslationPO In LanguageSource.TranslationsPO
-            If TextToTranslate Is SourcePO.Translation Then
-                ' Search target
-                For Each TargetPO As ClassTranslationPO In LanguageTarget.TranslationsPO
-                    If SourcePO.Context Is TargetPO.Context AndAlso SourcePO.ID Is TargetPO.ID AndAlso TargetPO.Translation IsNot "" Then
-                        Return TargetPO.Translation
-                    End If
-                Next
+        Dim TextToTranslatePO As String = WebUtility.HtmlDecode(TextToTranslate)
+
+        For Each TargetPO As ClassTranslationPO In LanguageTarget.TranslationsPO
+            If Context Is Nothing Then
+                If TextToTranslatePO = TargetPO.ID Then
+                    Return TargetPO.Translation
+                End If
+            Else
+                If TextToTranslatePO = TargetPO.ID AndAlso Context = TargetPO.Context Then
+                    Return TargetPO.Translation
+                End If
             End If
         Next
 
@@ -139,34 +143,103 @@ Public Class ClassLanguage
             Return TranslationsPO
         End If
 
-        Dim FilepathPO_Text As String = File.ReadAllText(FilepathPO)
 
         ' Regexes
-        Dim RegexPattern As New Regex(
-            "^msgctxt " & Chr(34) & "\[([a-z_0-9]+)\] ([a-zA-Z_0-9]+)" & Chr(34) & "\s+.+?" & Chr(34) & ".*?" & Chr(34) & "\s+msgstr " & Chr(34) & "(.*?)" & Chr(34) & "\s\s",
-            RegexOptions.Multiline
-        )
+
+        ' Context
+        ' msgctxt \"(.*?)\"
+        ' msgctxt " & Chr(34) & "(.*?) " & Chr(34)
+        Dim RegexContext As New Regex("msgctxt " & Chr(34) & "(.*?)" & Chr(34))
+
+        ' ID
+        ' msgid \"(.*?)\"
+        ' msgid " & Chr(34) & "(.*?)" & Chr(34)
+        Dim RegexID As New Regex("msgid " & Chr(34) & "(.*?)" & Chr(34))
+
+        ' ^\"(.*?)\"$
+        ' "^" & Chr(34) & "(.*?)" & Chr(34) & "$
+        Dim RegexID_Multiline As New Regex("^" & Chr(34) & "(.*?)" & Chr(34) & "$")
+
+        ' Translations
+        ' msgstr \"(.*?)\"
+        ' msgstr " & Chr(34) & "(.*?)" & Chr(34)
+        Dim RegexTranslation As New Regex("msgstr " & Chr(34) & "(.*?)" & Chr(34))
+        Dim RegexTranslation_Multiline As Regex = RegexID_Multiline
 
         ' Matches
-        Dim Matches As MatchCollection = RegexPattern.Matches(FilepathPO_Text)
+        Dim MatchContext As Match
+        Dim MatchID As Match
+        Dim MatchID_Multiline As Match
+        Dim MatchTranslation As Match
+        Dim MatchTranslation_Multiline As Match
 
-        ' Process
-        For Each Match As Match In Matches
-            If Match.Success Then
-                Dim TranslationConf As New ClassTranslationConf With {
-                    .Section = Match.Groups(1).Value,
-                    .Key = Match.Groups(2).Value,
-                    .Value = Match.Groups(3).Value
-                }
+        ' Parse
+        Dim FilepathPO_Lines As String() = File.ReadAllLines(FilepathPO)
+        Dim TranslationPO As New ClassTranslationPO
+        Dim LastType As ClassTranslationPO.StringType = ClassTranslationPO.StringType.NONE
 
-                Dim TranslationPO As New ClassTranslationPO With {
-                    .Context = TranslationConf.GetContext(),
-                    .ID = TranslationConf.Key,
-                    .Translation = TranslationConf.Value
-                }
+        For Each Line As String In FilepathPO_Lines
+            ' Context
+            MatchContext = RegexContext.Match(Line)
 
-                TranslationsPO.Add(TranslationPO)
+            If MatchContext.Success Then
+                TranslationPO.Context = MatchContext.Groups(1).Value
+
+                LastType = ClassTranslationPO.StringType.MSGCTXT
+                Continue For
             End If
+
+            ' ID
+            MatchID = RegexID.Match(Line)
+
+            If MatchID.Success Then
+                TranslationPO.ID = MatchID.Groups(1).Value
+
+                LastType = ClassTranslationPO.StringType.MSGID
+                Continue For
+            End If
+
+            MatchID_Multiline = RegexID_Multiline.Match(Line)
+
+            If MatchID_Multiline.Success AndAlso LastType = ClassTranslationPO.StringType.MSGID Then
+                TranslationPO.ID &= MatchID_Multiline.Groups(1).Value
+
+                LastType = ClassTranslationPO.StringType.MSGID
+                Continue For
+            End If
+
+            ' Translation
+            MatchTranslation = RegexTranslation.Match(Line)
+
+            If MatchTranslation.Success Then
+                TranslationPO.Translation = MatchTranslation.Groups(1).Value
+
+                LastType = ClassTranslationPO.StringType.MSGSTR
+                Continue For
+            End If
+
+            MatchTranslation_Multiline = RegexTranslation_Multiline.Match(Line)
+
+            If MatchTranslation_Multiline.Success AndAlso LastType = ClassTranslationPO.StringType.MSGSTR Then
+                TranslationPO.Translation &= MatchTranslation_Multiline.Groups(1).Value
+
+                LastType = ClassTranslationPO.StringType.MSGSTR
+                Continue For
+            End If
+
+            ' End Translation
+            If String.IsNullOrEmpty(TranslationPO.ID) AndAlso String.IsNullOrEmpty(TranslationPO.Translation) Then
+                Continue For
+            End If
+
+            If String.IsNullOrEmpty(Line.Trim()) AndAlso TranslationPO.Context IsNot Nothing AndAlso TranslationPO.ID IsNot Nothing Then
+                TranslationsPO.Add(TranslationPO)
+                TranslationPO = New ClassTranslationPO
+
+                Continue For
+            End If
+
+            LastType = ClassTranslationPO.StringType.NONE
         Next
 
         Return TranslationsPO

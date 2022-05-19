@@ -3,6 +3,46 @@
 Public Class ClassTranslationPO
 
 #Region "Static"
+    Enum StringType As Integer
+        NONE
+        MSGCTXT
+        MSGID
+        MSGSTR
+    End Enum
+    Public Shared Function WriteLine(LineToWrite As String, Optional Prefix As StringType = StringType.NONE) As String
+        Dim ManipulatedLine As String = ""
+
+        If Not Prefix = StringType.NONE Then
+            ManipulatedLine = Prefix.ToString.ToLower & " "
+        End If
+
+        If LineToWrite.Contains("\n") Then
+            Dim Multilines As String()
+
+            If LineToWrite.EndsWith("\n") Then
+                Multilines = LineToWrite.Substring(0, LineToWrite.Length - 2).Split("\n")
+            Else
+                Multilines = LineToWrite.Split("\n")
+            End If
+
+            If Multilines.Length >= 2 Then
+                ManipulatedLine &= Chr(34) & Chr(34) & vbCrLf
+            End If
+
+            For I = 0 To Multilines.Length - 1
+                ManipulatedLine &= Chr(34) & Multilines(I) & "\n" & Chr(34)
+
+                If Multilines.Length >= 2 AndAlso I < Multilines.Length - 1 Then
+                    ManipulatedLine &= vbCrLf
+                End If
+            Next
+        Else
+            ManipulatedLine &= Chr(34) & LineToWrite & Chr(34)
+        End If
+
+        Return ManipulatedLine
+    End Function
+
     ''' <summary>
     ''' Prepares the input string by escaping and unescaping values as well as decoding html entities.
     ''' </summary>
