@@ -1,5 +1,23 @@
 ﻿
 Public Class ClassTranslationDefine
+#Region "Static"
+    Public Shared Function GetTranslation(TextToTranslate As String) As String
+        For Each SourceDefine As ClassTranslationDefine In FormMain.Settings.LanguageSource.TranslationsDefine
+            If TextToTranslate Is SourceDefine.Value Then
+                ' Search target
+                For Each TargetDefine As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefine
+                    If SourceDefine.Name = TargetDefine.Name AndAlso TargetDefine.Value IsNot "" Then
+                        Return TargetDefine.Value
+                    End If
+                Next
+            End If
+        Next
+
+        Return ""
+    End Function
+#End Region
+
+#Region "Public"
     Public Property Original As String
     Public Property Name As String
     Public Property Value As String
@@ -24,4 +42,6 @@ Public Class ClassTranslationDefine
     Public Function GetContext() As String
         Return Me.Name
     End Function
+#End Region
+
 End Class

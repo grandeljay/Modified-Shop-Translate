@@ -1,6 +1,8 @@
 ﻿Imports System.Net
+Imports System.Text.RegularExpressions
 
 Public Class ClassTranslationPO
+    Public Const REGEX_CONTEXT_TO_KEY As String = "^\[([a-z_]+)\] ([a-zA-Z_0-9]+)$"
 
 #Region "Static"
     Enum StringType As Integer
@@ -9,6 +11,7 @@ Public Class ClassTranslationPO
         MSGID
         MSGSTR
     End Enum
+
     Public Shared Function WriteLine(LineToWrite As String, Optional Prefix As StringType = StringType.NONE) As String
         Dim ManipulatedLine As String = ""
 
@@ -53,7 +56,8 @@ Public Class ClassTranslationPO
 
         ' Remove slashes
         Dim ChractersToUnescape As New List(Of String) From {
-            "'"
+            "'",
+            Chr(34)
         }
 
         For Each ChracterToUnescape As String In ChractersToUnescape
@@ -104,12 +108,70 @@ Public Class ClassTranslationPO
 
         Return StringToConvert
     End Function
+
+    Public Shared Function GetTranslation(TextToTranslate As String, Optional Context As String = Nothing) As String
+        Dim TextToTranslatePO As String = WebUtility.HtmlDecode(TextToTranslate)
+
+        For Each TargetPO As ClassTranslationPO In FormMain.Settings.LanguageTarget.TranslationsPO
+            If Context Is Nothing Then
+                If TextToTranslatePO = TargetPO.ID Then
+                    Return TargetPO.Translation
+                End If
+            Else
+                If TextToTranslatePO = TargetPO.ID AndAlso Context = TargetPO.Context Then
+                    Return TargetPO.Translation
+                End If
+            End If
+        Next
+
+        Return ""
+    End Function
 #End Region
 
 #Region "Public"
     Public Property Context As String
     Public Property ID As String
     Public Property Translation As String = ""
+
+    Public Function IsFromConf() As Boolean
+        Dim RegexConf As New Regex(REGEX_CONTEXT_TO_KEY)
+        Dim MatchConf As Match = RegexConf.Match(Me.Context)
+
+        Return MatchConf.Success
+    End Function
+
+    Public Function IsFromDefine() As Boolean
+        Dim RegexDefine As New Regex("^[A-Z_]+$")
+        Dim MatchDefine As Match = RegexDefine.Match(Me.Context)
+
+        Return MatchDefine.Success
+    End Function
+
+    Public Function GetSection() As String
+        Dim Section As String = ""
+
+        Dim RegexSection As New Regex("^\[([a-z_]+)\]")
+        Dim MatchSection As Match = RegexSection.Match(Me.Context)
+
+        If MatchSection.Success Then
+            Section = MatchSection.Groups(1).Value
+        End If
+
+        Return Section
+    End Function
+
+    Public Function GetKey() As String
+        Dim Key As String = ""
+
+        Dim RegexSection As New Regex(REGEX_CONTEXT_TO_KEY)
+        Dim MatchSection As Match = RegexSection.Match(Me.Context)
+
+        If MatchSection.Success Then
+            Key = MatchSection.Groups(2).Value
+        End If
+
+        Return Key
+    End Function
 #End Region
 
 End Class

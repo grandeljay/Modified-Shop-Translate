@@ -105,7 +105,7 @@ Public Class FormMain
             Dim TranslationPO As New ClassTranslationPO With {
                 .Context = ClassTranslationPO.ToPo(TranslationConf.GetContext()),
                 .ID = ClassTranslationPO.ToPo(TranslationConf.Value),
-                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslation(TranslationConf.Value, TranslationConf.GetContext()))
+                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslationForPO(TranslationConf.Value, TranslationConf.GetContext()))
             }
 
             Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
@@ -119,7 +119,7 @@ Public Class FormMain
             Dim TranslationPO As New ClassTranslationPO With {
                 .Context = ClassTranslationPO.ToPo(TranslationDefine.GetContext()),
                 .ID = ClassTranslationPO.ToPo(TranslationDefine.Value),
-                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslation(TranslationDefine.Value, TranslationDefine.GetContext()))
+                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslationForPO(TranslationDefine.Value, TranslationDefine.GetContext()))
             }
 
             Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
@@ -141,15 +141,23 @@ Public Class FormMain
 
         Dim CurrentSection As String = ""
 
-        For Each TranslationConf As ClassTranslationConf In Settings.LanguageTarget.TranslationsConf
-            If CurrentSection <> TranslationConf.Section Then
-                Lines.Add("")
-                Lines.Add("[" & TranslationConf.Section & "]")
+        For Each TranslationPO As ClassTranslationPO In Settings.LanguageTarget.TranslationsPO
+            If TranslationPO.IsFromConf Then
+                Dim TranslationConf As New ClassTranslationConf With {
+                    .Section = TranslationPO.GetSection,
+                    .Key = TranslationPO.GetKey,
+                    .Value = TranslationPO.Translation
+                }
 
-                CurrentSection = TranslationConf.Section
+                If CurrentSection <> TranslationConf.Section Then
+                    Lines.Add("")
+                    Lines.Add("[" & TranslationConf.Section & "]")
+
+                    CurrentSection = TranslationConf.Section
+                End If
+
+                Lines.Add(TranslationConf.Key & " = '" & ClassTranslationPO.ToConf(TranslationConf.Value) & "'")
             End If
-
-            Lines.Add(TranslationConf.Key & " = '" & ClassTranslationPO.ToConf(TranslationConf.Value) & "'")
         Next
 
         ' Complete

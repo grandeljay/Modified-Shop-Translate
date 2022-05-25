@@ -1,7 +1,6 @@
 ﻿Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Net
-Imports System.Globalization
 
 Public Class ClassLanguage
 
@@ -16,48 +15,27 @@ Public Class ClassLanguage
         Throw New System.Exception("Unable to find language " & Chr(34) & LanguageNameToFind & Chr(34) & ".")
     End Function
 
-    Public Shared Function GetTranslation(TextToTranslate As String, Optional Context As String = Nothing, Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
-        If LanguageSource Is Nothing Then LanguageSource = FormMain.Settings.LanguageSource
-        If LanguageTarget Is Nothing Then LanguageTarget = FormMain.Settings.LanguageTarget
-
-        ' Search PO
-        Dim TextToTranslatePO As String = WebUtility.HtmlDecode(TextToTranslate)
-
-        For Each TargetPO As ClassTranslationPO In LanguageTarget.TranslationsPO
-            If Context Is Nothing Then
-                If TextToTranslatePO = TargetPO.ID Then
-                    Return TargetPO.Translation
-                End If
-            Else
-                If TextToTranslatePO = TargetPO.ID AndAlso Context = TargetPO.Context Then
-                    Return TargetPO.Translation
-                End If
-            End If
-        Next
-
+    Public Shared Function GetTranslationForPO(TextToTranslate As String, Optional Context As String = Nothing) As String
         ' Search Conf
-        For Each SourceConf As ClassTranslationConf In LanguageSource.TranslationsConf
-            If TextToTranslate Is SourceConf.Value Then
-                ' Search target
-                For Each TargetConf As ClassTranslationConf In LanguageTarget.TranslationsConf
-                    If SourceConf.Section = TargetConf.Section AndAlso SourceConf.Key = TargetConf.Key AndAlso TargetConf.Value IsNot "" Then
-                        Return TargetConf.Value
-                    End If
-                Next
-            End If
-        Next
+        Dim TranslationConf As String = ClassTranslationConf.GetTranslation(TextToTranslate)
+
+        If TranslationConf <> "" Then
+            Return TranslationConf
+        End If
 
         ' Search Define
-        For Each SourceDefine As ClassTranslationDefine In LanguageSource.TranslationsDefine
-            If TextToTranslate Is SourceDefine.Value Then
-                ' Search target
-                For Each TargetDefine As ClassTranslationDefine In LanguageTarget.TranslationsDefine
-                    If SourceDefine.Name = TargetDefine.Name AndAlso TargetDefine.Value IsNot "" Then
-                        Return TargetDefine.Value
-                    End If
-                Next
-            End If
-        Next
+        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate)
+
+        If TranslationDefine <> "" Then
+            Return TranslationDefine
+        End If
+
+        ' Search PO
+        Dim TranslationPO As String = ClassTranslationPO.GetTranslation(TextToTranslate, Context)
+
+        If TranslationPO <> "" Then
+            Return TranslationPO
+        End If
 
         Return ""
     End Function
@@ -144,7 +122,6 @@ Public Class ClassLanguage
             Return TranslationsPO
         End If
 
-
         ' Regexes
 
         ' Context
@@ -153,18 +130,18 @@ Public Class ClassLanguage
         Dim RegexContext As New Regex("msgctxt " & Chr(34) & "(.*?)" & Chr(34))
 
         ' ID
-        ' msgid \"(.*?)\"
-        ' msgid " & Chr(34) & "(.*?)" & Chr(34)
-        Dim RegexID As New Regex("msgid " & Chr(34) & "(.*?)" & Chr(34))
+        ' ^msgid \"(.*?)\"$
+        ' "^msgid " & Chr(34) & "(.*?)" & Chr(34) & "$"
+        Dim RegexID As New Regex("^msgid " & Chr(34) & "(.*?)" & Chr(34) & "$")
 
         ' ^\"(.*?)\"$
         ' "^" & Chr(34) & "(.*?)" & Chr(34) & "$
         Dim RegexID_Multiline As New Regex("^" & Chr(34) & "(.*?)" & Chr(34) & "$")
 
         ' Translations
-        ' msgstr \"(.*?)\"
-        ' msgstr " & Chr(34) & "(.*?)" & Chr(34)
-        Dim RegexTranslation As New Regex("msgstr " & Chr(34) & "(.*?)" & Chr(34))
+        ' ^msgstr \"(.*?)\"$
+        ' "^msgstr " & Chr(34) & "(.*?)" & Chr(34) & "$"
+        Dim RegexTranslation As New Regex("^msgstr " & Chr(34) & "(.*?)" & Chr(34) & "$")
         Dim RegexTranslation_Multiline As Regex = RegexID_Multiline
 
         ' Matches
@@ -229,7 +206,7 @@ Public Class ClassLanguage
             End If
 
             ' End Translation
-            If String.IsNullOrEmpty(TranslationPO.ID) AndAlso String.IsNullOrEmpty(TranslationPO.Translation) Then
+            If String.IsNullOrEmpty(TranslationPO.ID) AndAlso String.IsNullOrEmpty(TranslationPO.Translation) AndAlso TranslationsPO.Count = 0 Then
                 Continue For
             End If
 
@@ -324,13 +301,13 @@ Public Class ClassLanguage
         'Next
 
         Select Case Me.Name.ToLower()
-            Case "bulgarian" : Me.Locale = "bg-BG"
-            Case "english" : Me.Locale = "en-GB"
-            Case "french" : Me.Locale = "fr-FR"
-            Case "german" : Me.Locale = "de-DE"
-            Case "italian" : Me.Locale = "it-IT"
-            Case "polish" : Me.Locale = "pl-PL"
-            Case "spanish" : Me.Locale = "es-ES"
+            Case "bulgarian" : Me.Locale = "bg_BG"
+            Case "english" : Me.Locale = "en_GB"
+            Case "french" : Me.Locale = "fr_FR"
+            Case "german" : Me.Locale = "de_DE"
+            Case "italian" : Me.Locale = "it_IT"
+            Case "polish" : Me.Locale = "pl_PL"
+            Case "spanish" : Me.Locale = "es_ES"
             Case Else
                 Throw New System.Exception("There is no known locale for language " & Me.Name & ". Please improve the source code.")
         End Select
