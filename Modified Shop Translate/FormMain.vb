@@ -71,6 +71,28 @@ Public Class FormMain
         Me.CreateConf()
         Me.CreateDefine()
     End Sub
+
+
+    Private Sub ButtonCreatePOAndTranslations_Click(sender As Object, e As EventArgs) Handles ButtonCreatePOAndTranslations.Click
+        If Settings.LanguageSource Is Nothing Then
+            MessageBox.Show("Please select a source language.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            Exit Sub
+        End If
+
+        Dim LanguageSource As ClassLanguage = Settings.LanguageSource
+
+        For Each LanguageTarget As ClassLanguage In Settings.Languages
+            If LanguageSource.Locale = LanguageTarget.Locale Then
+                Continue For
+            End If
+
+            Settings.LanguageTarget = LanguageTarget
+
+            ButtonCreatePO_Click(sender, e)
+            ButtonUpdateTranslations_Click(sender, e)
+        Next
+    End Sub
 #End Region
 
     Private Function FormIsValid() As Boolean
@@ -172,17 +194,18 @@ Public Class FormMain
         Dim FilecontentsDefine As String = File.ReadAllText(Settings.LanguageTarget.GetFilepathDefine())
 
         For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefine
-            ' Search for translation
-            For Each DefineTarget As ClassTranslationDefine In Settings.LanguageTarget.TranslationsDefine
-                If DefineSource.Name = DefineTarget.Name Then
-                    FilecontentsDefine = FilecontentsDefine.Replace(
-                        DefineSource.Original,
-                        DefineSource.GetOriginalTranslated(DefineTarget.Value)
-                    )
+            Dim DefineTranslation As String = ClassLanguage.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
 
-                    Exit For
-                End If
-            Next
+            Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineSource.Name)
+            Dim RegexOriginal As New Regex(RegexPattern)
+            Dim MatchOriginal As Match = RegexOriginal.Match(FilecontentsDefine)
+
+            If MatchOriginal.Success AndAlso DefineSource.IsSuitedForPO Then
+                Dim Original As String = MatchOriginal.Groups(0).Value
+                Dim Translation As String = DefineSource.GetOriginalTranslated(ClassTranslationPO.ToDefine(DefineTranslation))
+
+                FilecontentsDefine = FilecontentsDefine.Replace(Original, Translation)
+            End If
         Next
 
         ' Complete

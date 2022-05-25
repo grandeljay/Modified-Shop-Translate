@@ -109,6 +109,30 @@ Public Class ClassTranslationPO
         Return StringToConvert
     End Function
 
+    Public Shared Function ToDefine(StringToConvert As String) As String
+        Const EscapeChracter As String = "\"
+
+        ' Remove slashes
+        Dim ChractersToUnescape As New List(Of String) From {
+            "'"
+        }
+
+        For Each ChracterToUnescape As String In ChractersToUnescape
+            StringToConvert = StringToConvert.Replace(EscapeChracter & ChracterToUnescape, ChracterToUnescape)
+        Next
+
+        ' Add slashes
+        Dim ChractersToEscape As New List(Of String) From {
+            "'"
+        }
+
+        For Each ChracterToEscape As String In ChractersToEscape
+            StringToConvert = StringToConvert.Replace(ChracterToEscape, EscapeChracter & ChracterToEscape)
+        Next
+
+        Return StringToConvert
+    End Function
+
     Public Shared Function GetTranslation(TextToTranslate As String, Optional Context As String = Nothing) As String
         Dim TextToTranslatePO As String = WebUtility.HtmlDecode(TextToTranslate)
 

@@ -1,5 +1,10 @@
 ﻿
+Imports System.Text.RegularExpressions
+
 Public Class ClassTranslationDefine
+    Public Const REGEX_DEFINE_CONSTANT As String = "[A-Z_0-9]+"
+    Public Const REGEX_DEFINE As String = "define\('(" & REGEX_DEFINE_CONSTANT & ")', *'(.*?)'\);"
+
 #Region "Static"
     Public Shared Function GetTranslation(TextToTranslate As String) As String
         For Each SourceDefine As ClassTranslationDefine In FormMain.Settings.LanguageSource.TranslationsDefine
@@ -41,6 +46,18 @@ Public Class ClassTranslationDefine
 
     Public Function GetContext() As String
         Return Me.Name
+    End Function
+
+    Public Function IsSuitedForPO() As Boolean
+        ' Regexes
+        Dim RegexQuoteSingle As New Regex("'")
+        Dim RegexQuoteSingleEscaped As New Regex("\\'")
+
+        ' Matches
+        Dim MatchQuoteSingle As MatchCollection = RegexQuoteSingle.Matches(Me.Value)
+        Dim MatchQuoteSingleEscaped As MatchCollection = RegexQuoteSingleEscaped.Matches(Me.Value)
+
+        Return MatchQuoteSingle.Count = MatchQuoteSingleEscaped.Count
     End Function
 #End Region
 

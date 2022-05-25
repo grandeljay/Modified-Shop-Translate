@@ -39,6 +39,56 @@ Public Class ClassLanguage
 
         Return ""
     End Function
+
+    Public Shared Function GetTranslationForDefine(TextToTranslate As String, Optional Context As String = Nothing) As String
+        ' Search PO
+        Dim TranslationPO As String = ClassTranslationPO.GetTranslation(TextToTranslate, Context)
+
+        If TranslationPO <> "" Then
+            Return TranslationPO
+        End If
+
+        ' Search Conf
+        Dim TranslationConf As String = ClassTranslationConf.GetTranslation(TextToTranslate)
+
+        If TranslationConf <> "" Then
+            Return TranslationConf
+        End If
+
+        ' Search Define
+        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate)
+
+        If TranslationDefine <> "" Then
+            Return TranslationDefine
+        End If
+
+        Return ""
+    End Function
+
+    Public Shared Function GetTranslationForConf(TextToTranslate As String, Optional Context As String = Nothing) As String
+        ' Search PO
+        Dim TranslationPO As String = ClassTranslationPO.GetTranslation(TextToTranslate, Context)
+
+        If TranslationPO <> "" Then
+            Return TranslationPO
+        End If
+
+        ' Search Define
+        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate)
+
+        If TranslationDefine <> "" Then
+            Return TranslationDefine
+        End If
+
+        ' Search Conf
+        Dim TranslationConf As String = ClassTranslationConf.GetTranslation(TextToTranslate)
+
+        If TranslationConf <> "" Then
+            Return TranslationConf
+        End If
+
+        Return ""
+    End Function
 #End Region
 
 #Region "Private"
@@ -236,35 +286,23 @@ Public Class ClassLanguage
         Dim FilepathDefine_Lines As String() = File.ReadAllLines(FilepathDefine)
 
         ' Regexes
-        Dim RegexPattern As New Regex("define\('([A-Z_0-9]+)', *'(.*?)'\);")
-        Dim RegexQuoteSingle As New Regex("'")
-        Dim RegexQuoteSingleEscaped As New Regex("\\'")
+        Dim RegexPattern As New Regex(ClassTranslationDefine.REGEX_DEFINE)
 
         ' Matches
         Dim MatchDefine As Match
-        Dim MatchQuoteSingle As MatchCollection
-        Dim MatchQuoteSingleEscaped As MatchCollection
 
         ' Process
         For Each LineDefine As String In FilepathDefine_Lines
             MatchDefine = RegexPattern.Match(LineDefine)
 
             If MatchDefine.Success Then
-                Dim Define As String = MatchDefine.Groups(0).Value
-                Dim Key As String = MatchDefine.Groups(1).Value
-                Dim Value As String = MatchDefine.Groups(2).Value
+                Dim TranslationDefine As New ClassTranslationDefine With {
+                    .Original = MatchDefine.Groups(0).Value,
+                    .Name = MatchDefine.Groups(1).Value,
+                    .Value = MatchDefine.Groups(2).Value
+                }
 
-                MatchQuoteSingle = RegexQuoteSingle.Matches(Value)
-                MatchQuoteSingleEscaped = RegexQuoteSingleEscaped.Matches(Value)
-
-                ' Use this match
-                If MatchQuoteSingle.Count = MatchQuoteSingleEscaped.Count Then
-                    Dim TranslationDefine As New ClassTranslationDefine With {
-                        .Original = Define,
-                        .Name = Key,
-                        .Value = Value
-                    }
-
+                If TranslationDefine.IsSuitedForPO Then
                     TranslationsDefine.Add(TranslationDefine)
                 End If
             End If
