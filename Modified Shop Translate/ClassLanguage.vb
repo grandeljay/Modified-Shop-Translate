@@ -273,12 +273,10 @@ Public Class ClassLanguage
         Return TranslationsPO
     End Function
 
-    Private Function GetTranslationsDefine() As List(Of ClassTranslationDefine)
+    Private Function GetTranslationsDefine(FilepathDefine As String, IsAdmin As Boolean) As List(Of ClassTranslationDefine)
         Dim TranslationsDefine As New List(Of ClassTranslationDefine)
 
         ' Filepaths
-        Dim FilepathDefine As String = Me.GetFilepathDefine()
-
         If Not File.Exists(FilepathDefine) Then
             Return TranslationsDefine
         End If
@@ -299,7 +297,8 @@ Public Class ClassLanguage
                 Dim TranslationDefine As New ClassTranslationDefine With {
                     .Original = MatchDefine.Groups(0).Value,
                     .Name = MatchDefine.Groups(1).Value,
-                    .Value = MatchDefine.Groups(2).Value
+                    .Value = MatchDefine.Groups(2).Value,
+                    .IsAdmin = IsAdmin
                 }
 
                 If TranslationDefine.IsSuitedForPO Then
@@ -319,6 +318,7 @@ Public Class ClassLanguage
     Public Property TranslationsConf As New List(Of ClassTranslationConf)
     Public Property TranslationsPO As New List(Of ClassTranslationPO)
     Public Property TranslationsDefine As New List(Of ClassTranslationDefine)
+    Public Property TranslationsDefineAdmin As New List(Of ClassTranslationDefine)
 
     Public Sub New(Optional LanguageDirectory As String = "")
         If LanguageDirectory Is "" AndAlso Not Directory.Exists(LanguageDirectory) Then
@@ -353,7 +353,8 @@ Public Class ClassLanguage
         ' Translations
         Me.TranslationsConf = Me.GetTranslationsConf
         Me.TranslationsPO = Me.GetTranslationsPO
-        Me.TranslationsDefine = Me.GetTranslationsDefine
+        Me.TranslationsDefine = Me.GetTranslationsDefine(Me.GetFilepathDefine, False)
+        Me.TranslationsDefineAdmin = Me.GetTranslationsDefine(Me.GetFilepathDefineAdmin, True)
     End Sub
 
     Public Function GetFilepathConf() As String
@@ -366,6 +367,10 @@ Public Class ClassLanguage
 
     Public Function GetFilepathDefine() As String
         Return Me.DirectoryPath & "\" & Me.Name & ".php"
+    End Function
+
+    Public Function GetFilepathDefineAdmin() As String
+        Return Me.DirectoryPath & "\admin\" & Me.Name & ".php"
     End Function
 #End Region
 

@@ -26,6 +26,7 @@ Public Class ClassTranslationDefine
     Public Property Original As String
     Public Property Name As String
     Public Property Value As String
+    Public Property IsAdmin As Boolean = False
 
     ''' <summary>
     ''' Returns the original define statement with the value subsituted with the supplied translation.
@@ -45,7 +46,13 @@ Public Class ClassTranslationDefine
     End Function
 
     Public Function GetContext() As String
-        Return Me.Name
+        Dim Context As String = Me.Name
+
+        If IsAdmin Then
+            Context &= " (Admin)"
+        End If
+
+        Return Context
     End Function
 
     Public Function IsSuitedForPO() As Boolean

@@ -150,6 +150,20 @@ Public Class FormMain
             Lines.Add("")
         Next
 
+        ' Define Admin
+        For Each TranslationDefineAdmin As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefineAdmin
+            Dim TranslationPO As New ClassTranslationPO With {
+                .Context = ClassTranslationPO.ToPo(TranslationDefineAdmin.GetContext()),
+                .ID = ClassTranslationPO.ToPo(TranslationDefineAdmin.Value),
+                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslationForPO(TranslationDefineAdmin.Value, TranslationDefineAdmin.GetContext()))
+            }
+
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.ID, ClassTranslationPO.StringType.MSGID))
+            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Translation, ClassTranslationPO.StringType.MSGSTR))
+            Lines.Add("")
+        Next
+
         ' Complete
         Dim Filepath As String = Settings.LanguageTarget.GetFilepathPO()
 
@@ -191,7 +205,8 @@ Public Class FormMain
     End Sub
 
     Private Sub CreateDefine()
-        Dim FilecontentsDefine As String = File.ReadAllText(Settings.LanguageTarget.GetFilepathDefine())
+        Dim FilepathDefine As String = Settings.LanguageTarget.GetFilepathDefine()
+        Dim FilecontentsDefine As String = File.ReadAllText(FilepathDefine)
 
         For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefine
             Dim DefineTranslation As String = ClassLanguage.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
@@ -209,10 +224,33 @@ Public Class FormMain
         Next
 
         ' Complete
-        Dim Define_Path As String = Settings.LanguageTarget.GetFilepathDefine()
+        File.WriteAllText(FilepathDefine, FilecontentsDefine)
 
-        File.WriteAllText(Define_Path, FilecontentsDefine)
+        MessageBox.Show(FilepathDefine & " has been created.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
 
-        MessageBox.Show(Define_Path & " has been created.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
+    Private Sub CreateDefineAdmin()
+        Dim FilepathDefineAdmin As String = Settings.LanguageTarget.GetFilepathDefineAdmin()
+        Dim FilecontentsDefineAdmin As String = File.ReadAllText(FilepathDefineAdmin)
+
+        For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefineAdmin
+            Dim DefineTranslation As String = ClassLanguage.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
+
+            Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineSource.Name)
+            Dim RegexOriginal As New Regex(RegexPattern)
+            Dim MatchOriginal As Match = RegexOriginal.Match(FilecontentsDefineAdmin)
+
+            If MatchOriginal.Success AndAlso DefineSource.IsSuitedForPO Then
+                Dim Original As String = MatchOriginal.Groups(0).Value
+                Dim Translation As String = DefineSource.GetOriginalTranslated(ClassTranslationPO.ToDefine(DefineTranslation))
+
+                FilecontentsDefineAdmin = FilecontentsDefineAdmin.Replace(Original, Translation)
+            End If
+        Next
+
+        ' Complete
+        File.WriteAllText(FilepathDefineAdmin, FilecontentsDefineAdmin)
+
+        MessageBox.Show(FilepathDefineAdmin & " has been created.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 End Class
