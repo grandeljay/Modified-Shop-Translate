@@ -23,8 +23,8 @@ Public Class ClassLanguage
             Return TranslationConf
         End If
 
-        ' Search Define
-        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate)
+        ' Search Defines
+        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate, Context)
 
         If TranslationDefine <> "" Then
             Return TranslationDefine
@@ -56,7 +56,7 @@ Public Class ClassLanguage
         End If
 
         ' Search Define
-        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate)
+        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate, Context)
 
         If TranslationDefine <> "" Then
             Return TranslationDefine
@@ -74,7 +74,7 @@ Public Class ClassLanguage
         End If
 
         ' Search Define
-        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate)
+        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate, Context)
 
         If TranslationDefine <> "" Then
             Return TranslationDefine

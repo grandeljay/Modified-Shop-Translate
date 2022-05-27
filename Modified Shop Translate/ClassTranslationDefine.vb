@@ -6,11 +6,24 @@ Public Class ClassTranslationDefine
     Public Const REGEX_DEFINE As String = "define\('(" & REGEX_DEFINE_CONSTANT & ")', *'(.*?)'\);"
 
 #Region "Static"
-    Public Shared Function GetTranslation(TextToTranslate As String) As String
+    Public Shared Function GetTranslation(TextToTranslate As String, Context As String) As String
+        ' Define
         For Each SourceDefine As ClassTranslationDefine In FormMain.Settings.LanguageSource.TranslationsDefine
-            If TextToTranslate Is SourceDefine.Value Then
+            If TextToTranslate = SourceDefine.Value AndAlso Context = SourceDefine.GetContext Then
                 ' Search target
                 For Each TargetDefine As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefine
+                    If SourceDefine.Name = TargetDefine.Name AndAlso TargetDefine.Value IsNot "" Then
+                        Return TargetDefine.Value
+                    End If
+                Next
+            End If
+        Next
+
+        'Define Admin
+        For Each SourceDefine As ClassTranslationDefine In FormMain.Settings.LanguageSource.TranslationsDefineAdmin
+            If TextToTranslate = SourceDefine.Value AndAlso Context = SourceDefine.GetContext Then
+                ' Search target
+                For Each TargetDefine As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefineAdmin
                     If SourceDefine.Name = TargetDefine.Name AndAlso TargetDefine.Value IsNot "" Then
                         Return TargetDefine.Value
                     End If
