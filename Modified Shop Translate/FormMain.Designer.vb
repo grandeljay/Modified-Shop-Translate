@@ -29,6 +29,7 @@ Partial Class FormMain
         Me.ButtonCreatePO = New System.Windows.Forms.Button()
         Me.ButtonUpdateTranslations = New System.Windows.Forms.Button()
         Me.ButtonCreatePOAndTranslations = New System.Windows.Forms.Button()
+        Me.ButtonCreatePOAll = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'LabelLanguageSource
@@ -72,6 +73,7 @@ Partial Class FormMain
         Me.ButtonCreatePO.AutoSize = True
         Me.ButtonCreatePO.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
         Me.ButtonCreatePO.Location = New System.Drawing.Point(23, 93)
+        Me.ButtonCreatePO.Margin = New System.Windows.Forms.Padding(3, 3, 0, 3)
         Me.ButtonCreatePO.MinimumSize = New System.Drawing.Size(0, 24)
         Me.ButtonCreatePO.Name = "ButtonCreatePO"
         Me.ButtonCreatePO.Size = New System.Drawing.Size(79, 25)
@@ -83,7 +85,7 @@ Partial Class FormMain
         '
         Me.ButtonUpdateTranslations.AutoSize = True
         Me.ButtonUpdateTranslations.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ButtonUpdateTranslations.Location = New System.Drawing.Point(108, 93)
+        Me.ButtonUpdateTranslations.Location = New System.Drawing.Point(179, 93)
         Me.ButtonUpdateTranslations.MinimumSize = New System.Drawing.Size(0, 24)
         Me.ButtonUpdateTranslations.Name = "ButtonUpdateTranslations"
         Me.ButtonUpdateTranslations.Size = New System.Drawing.Size(130, 25)
@@ -95,7 +97,7 @@ Partial Class FormMain
         '
         Me.ButtonCreatePOAndTranslations.AutoSize = True
         Me.ButtonCreatePOAndTranslations.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ButtonCreatePOAndTranslations.Location = New System.Drawing.Point(244, 93)
+        Me.ButtonCreatePOAndTranslations.Location = New System.Drawing.Point(315, 93)
         Me.ButtonCreatePOAndTranslations.MinimumSize = New System.Drawing.Size(0, 24)
         Me.ButtonCreatePOAndTranslations.Name = "ButtonCreatePOAndTranslations"
         Me.ButtonCreatePOAndTranslations.Size = New System.Drawing.Size(215, 25)
@@ -103,11 +105,25 @@ Partial Class FormMain
         Me.ButtonCreatePOAndTranslations.Text = "Create PO && Update Translations"
         Me.ButtonCreatePOAndTranslations.UseVisualStyleBackColor = True
         '
+        'ButtonCreatePOAll
+        '
+        Me.ButtonCreatePOAll.AutoSize = True
+        Me.ButtonCreatePOAll.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.ButtonCreatePOAll.Location = New System.Drawing.Point(101, 93)
+        Me.ButtonCreatePOAll.Margin = New System.Windows.Forms.Padding(0, 3, 3, 3)
+        Me.ButtonCreatePOAll.MinimumSize = New System.Drawing.Size(0, 24)
+        Me.ButtonCreatePOAll.Name = "ButtonCreatePOAll"
+        Me.ButtonCreatePOAll.Size = New System.Drawing.Size(34, 25)
+        Me.ButtonCreatePOAll.TabIndex = 8
+        Me.ButtonCreatePOAll.Text = "All"
+        Me.ButtonCreatePOAll.UseVisualStyleBackColor = True
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(489, 139)
+        Me.ClientSize = New System.Drawing.Size(550, 139)
+        Me.Controls.Add(Me.ButtonCreatePOAll)
         Me.Controls.Add(Me.ButtonCreatePOAndTranslations)
         Me.Controls.Add(Me.ButtonUpdateTranslations)
         Me.Controls.Add(Me.ButtonCreatePO)
@@ -134,4 +150,5 @@ Partial Class FormMain
     Friend WithEvents ButtonCreatePO As Button
     Friend WithEvents ButtonUpdateTranslations As Button
     Friend WithEvents ButtonCreatePOAndTranslations As Button
+    Friend WithEvents ButtonCreatePOAll As Button
 End Class
