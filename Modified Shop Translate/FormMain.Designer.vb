@@ -29,6 +29,7 @@ Partial Class FormMain
         Me.ButtonCreatePO = New System.Windows.Forms.Button()
         Me.ButtonUpdateTranslations = New System.Windows.Forms.Button()
         Me.ButtonCreatePOAll = New System.Windows.Forms.Button()
+        Me.ButtonUpdateTranslationsAll = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'LabelLanguageSource
@@ -85,6 +86,7 @@ Partial Class FormMain
         Me.ButtonUpdateTranslations.AutoSize = True
         Me.ButtonUpdateTranslations.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
         Me.ButtonUpdateTranslations.Location = New System.Drawing.Point(179, 93)
+        Me.ButtonUpdateTranslations.Margin = New System.Windows.Forms.Padding(3, 3, 0, 3)
         Me.ButtonUpdateTranslations.MinimumSize = New System.Drawing.Size(0, 24)
         Me.ButtonUpdateTranslations.Name = "ButtonUpdateTranslations"
         Me.ButtonUpdateTranslations.Size = New System.Drawing.Size(130, 25)
@@ -105,11 +107,25 @@ Partial Class FormMain
         Me.ButtonCreatePOAll.Text = "All"
         Me.ButtonCreatePOAll.UseVisualStyleBackColor = True
         '
+        'ButtonUpdateTranslationsAll
+        '
+        Me.ButtonUpdateTranslationsAll.AutoSize = True
+        Me.ButtonUpdateTranslationsAll.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.ButtonUpdateTranslationsAll.Location = New System.Drawing.Point(309, 93)
+        Me.ButtonUpdateTranslationsAll.Margin = New System.Windows.Forms.Padding(0, 3, 3, 3)
+        Me.ButtonUpdateTranslationsAll.MinimumSize = New System.Drawing.Size(0, 24)
+        Me.ButtonUpdateTranslationsAll.Name = "ButtonUpdateTranslationsAll"
+        Me.ButtonUpdateTranslationsAll.Size = New System.Drawing.Size(34, 25)
+        Me.ButtonUpdateTranslationsAll.TabIndex = 9
+        Me.ButtonUpdateTranslationsAll.Text = "All"
+        Me.ButtonUpdateTranslationsAll.UseVisualStyleBackColor = True
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(355, 139)
+        Me.ClientSize = New System.Drawing.Size(394, 139)
+        Me.Controls.Add(Me.ButtonUpdateTranslationsAll)
         Me.Controls.Add(Me.ButtonCreatePOAll)
         Me.Controls.Add(Me.ButtonUpdateTranslations)
         Me.Controls.Add(Me.ButtonCreatePO)
@@ -136,4 +152,5 @@ Partial Class FormMain
     Friend WithEvents ButtonCreatePO As Button
     Friend WithEvents ButtonUpdateTranslations As Button
     Friend WithEvents ButtonCreatePOAll As Button
+    Friend WithEvents ButtonUpdateTranslationsAll As Button
 End Class

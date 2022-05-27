@@ -94,6 +94,27 @@ Public Class FormMain
         Me.CreateDefineAdmin()
     End Sub
 
+    Private Sub ButtonUpdateTranslationsAll_Click(sender As Object, e As EventArgs) Handles ButtonUpdateTranslationsAll.Click
+        If Settings.LanguageSource Is Nothing Then
+            MessageBox.Show("Please select a source language.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            Exit Sub
+        End If
+
+        For Each LanguageTarget As ClassLanguage In Settings.Languages
+            If Settings.LanguageSource.Locale = LanguageTarget.Locale Then
+                Continue For
+            End If
+
+            Settings.LanguageTarget = LanguageTarget
+
+            ButtonUpdateTranslations_Click(sender, e)
+        Next
+
+        ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
+        ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
+    End Sub
+
 #End Region
 
     Private Function FormIsValid() As Boolean
