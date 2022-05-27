@@ -28,7 +28,6 @@ Partial Class FormMain
         Me.ComboBoxLanguageTarget = New System.Windows.Forms.ComboBox()
         Me.ButtonCreatePO = New System.Windows.Forms.Button()
         Me.ButtonUpdateTranslations = New System.Windows.Forms.Button()
-        Me.ButtonCreatePOAndTranslations = New System.Windows.Forms.Button()
         Me.ButtonCreatePOAll = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
@@ -93,18 +92,6 @@ Partial Class FormMain
         Me.ButtonUpdateTranslations.Text = "Update Traslations"
         Me.ButtonUpdateTranslations.UseVisualStyleBackColor = True
         '
-        'ButtonCreatePOAndTranslations
-        '
-        Me.ButtonCreatePOAndTranslations.AutoSize = True
-        Me.ButtonCreatePOAndTranslations.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ButtonCreatePOAndTranslations.Location = New System.Drawing.Point(315, 93)
-        Me.ButtonCreatePOAndTranslations.MinimumSize = New System.Drawing.Size(0, 24)
-        Me.ButtonCreatePOAndTranslations.Name = "ButtonCreatePOAndTranslations"
-        Me.ButtonCreatePOAndTranslations.Size = New System.Drawing.Size(215, 25)
-        Me.ButtonCreatePOAndTranslations.TabIndex = 7
-        Me.ButtonCreatePOAndTranslations.Text = "Create PO && Update Translations"
-        Me.ButtonCreatePOAndTranslations.UseVisualStyleBackColor = True
-        '
         'ButtonCreatePOAll
         '
         Me.ButtonCreatePOAll.AutoSize = True
@@ -122,9 +109,8 @@ Partial Class FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(550, 139)
+        Me.ClientSize = New System.Drawing.Size(355, 139)
         Me.Controls.Add(Me.ButtonCreatePOAll)
-        Me.Controls.Add(Me.ButtonCreatePOAndTranslations)
         Me.Controls.Add(Me.ButtonUpdateTranslations)
         Me.Controls.Add(Me.ButtonCreatePO)
         Me.Controls.Add(Me.ComboBoxLanguageTarget)
@@ -149,6 +135,5 @@ Partial Class FormMain
     Friend WithEvents ComboBoxLanguageTarget As ComboBox
     Friend WithEvents ButtonCreatePO As Button
     Friend WithEvents ButtonUpdateTranslations As Button
-    Friend WithEvents ButtonCreatePOAndTranslations As Button
     Friend WithEvents ButtonCreatePOAll As Button
 End Class

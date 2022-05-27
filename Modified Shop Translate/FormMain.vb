@@ -93,27 +93,6 @@ Public Class FormMain
         Me.CreateDefine()
     End Sub
 
-
-    Private Sub ButtonCreatePOAndTranslations_Click(sender As Object, e As EventArgs) Handles ButtonCreatePOAndTranslations.Click
-        If Settings.LanguageSource Is Nothing Then
-            MessageBox.Show("Please select a source language.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
-
-            Exit Sub
-        End If
-
-        Dim LanguageSource As ClassLanguage = Settings.LanguageSource
-
-        For Each LanguageTarget As ClassLanguage In Settings.Languages
-            If LanguageSource.Locale = LanguageTarget.Locale Then
-                Continue For
-            End If
-
-            Settings.LanguageTarget = LanguageTarget
-
-            ButtonCreatePO_Click(sender, e)
-            ButtonUpdateTranslations_Click(sender, e)
-        Next
-    End Sub
 #End Region
 
     Private Function FormIsValid() As Boolean
