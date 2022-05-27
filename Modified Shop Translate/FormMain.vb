@@ -91,6 +91,7 @@ Public Class FormMain
 
         Me.CreateConf()
         Me.CreateDefine()
+        Me.CreateDefineAdmin()
     End Sub
 
 #End Region
