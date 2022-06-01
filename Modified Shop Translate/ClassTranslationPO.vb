@@ -19,7 +19,7 @@ Public Class ClassTranslationPO
             ManipulatedLine = Prefix.ToString.ToLower & " "
         End If
 
-        If LineToWrite.Contains("\n") Then
+        If LineToWrite.Contains("\n") AndAlso Prefix <> StringType.MSGCTXT Then
             Dim Multilines As String()
 
             If LineToWrite.EndsWith("\n") Then
@@ -46,6 +46,21 @@ Public Class ClassTranslationPO
         Return ManipulatedLine
     End Function
 
+    Public Shared Function FromPO(StringToConvert As String) As String
+        Const EscapeChracter As String = "\"
+
+        ' Remove slashes
+        Dim ChractersToUnescape As New List(Of String) From {
+            Chr(34)
+        }
+
+        For Each ChracterToUnescape As String In ChractersToUnescape
+            StringToConvert = StringToConvert.Replace(EscapeChracter & ChracterToUnescape, ChracterToUnescape)
+        Next
+
+        Return StringToConvert
+    End Function
+
     ''' <summary>
     ''' Prepares the input string by escaping and unescaping values as well as decoding html entities.
     ''' </summary>
@@ -54,10 +69,13 @@ Public Class ClassTranslationPO
     Public Shared Function ToPo(StringToConvert As String) As String
         Const EscapeChracter As String = "\"
 
+        ' Convert HTML entities      
+        StringToConvert = WebUtility.HtmlDecode(StringToConvert)
+
         ' Remove slashes
         Dim ChractersToUnescape As New List(Of String) From {
-            "'",
-            Chr(34)
+            Chr(34),
+            "'"
         }
 
         For Each ChracterToUnescape As String In ChractersToUnescape
@@ -73,9 +91,10 @@ Public Class ClassTranslationPO
             StringToConvert = StringToConvert.Replace(ChracterToEscape, EscapeChracter & ChracterToEscape)
         Next
 
-        ' Convert HTML entities      
-        StringToConvert = WebUtility.HtmlDecode(StringToConvert)
+        Return StringToConvert
+    End Function
 
+    Public Shared Function FromConf(StringToConvert As String) As String
         Return StringToConvert
     End Function
 
@@ -106,6 +125,10 @@ Public Class ClassTranslationPO
             StringToConvert = StringToConvert.Replace(ChracterToEscape, EscapeChracter & ChracterToEscape)
         Next
 
+        Return StringToConvert
+    End Function
+
+    Public Shared Function FromDefine(StringToConvert As String) As String
         Return StringToConvert
     End Function
 

@@ -3,35 +3,68 @@ Imports System.Text.RegularExpressions
 
 Public Class ClassTranslationDefine
     Public Const REGEX_DEFINE_CONSTANT As String = "[A-Z_0-9]+"
-    Public Const REGEX_DEFINE As String = "define\('(" & REGEX_DEFINE_CONSTANT & ")', *'(.*?)'\);"
+    Public Const REGEX_DEFINE_BASE As String = "(define *\('(" & REGEX_DEFINE_CONSTANT & ")' *, *'(.*?)'\);)"
+    Public Const REGEX_DEFINE As String = REGEX_DEFINE_BASE & "[\n\r/]|" & REGEX_DEFINE_BASE & "$|" & REGEX_DEFINE_BASE
 
 #Region "Static"
     Public Shared Function GetTranslation(TextToTranslate As String, Context As String) As String
-        ' Define
+        ' Find Source translations
+        Dim TranslationSource As ClassTranslationDefine = Nothing
+
         For Each SourceDefine As ClassTranslationDefine In FormMain.Settings.LanguageSource.TranslationsDefine
-            If TextToTranslate = SourceDefine.Value AndAlso Context = SourceDefine.GetContext Then
-                ' Search target
-                For Each TargetDefine As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefine
-                    If SourceDefine.Name = TargetDefine.Name AndAlso TargetDefine.Value IsNot "" Then
-                        Return TargetDefine.Value
-                    End If
-                Next
+            If SourceDefine.Value = TextToTranslate AndAlso SourceDefine.GetContext = Context Then
+                TranslationSource = SourceDefine
+                Exit For
             End If
         Next
 
-        'Define Admin
-        For Each SourceDefine As ClassTranslationDefine In FormMain.Settings.LanguageSource.TranslationsDefineAdmin
-            If TextToTranslate = SourceDefine.Value AndAlso Context = SourceDefine.GetContext Then
-                ' Search target
-                For Each TargetDefine As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefineAdmin
-                    If SourceDefine.Name = TargetDefine.Name AndAlso TargetDefine.Value IsNot "" Then
-                        Return TargetDefine.Value
-                    End If
-                Next
+        ' Find Target translation
+        For Each TranslationTarget As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefine
+            If TranslationSource.Name = TranslationTarget.Name AndAlso
+               TranslationSource.GetFilepathForTarget(FormMain.Settings.LanguageSource, FormMain.Settings.LanguageTarget) = TranslationTarget.Filepath Then
+                Return TranslationTarget.Value
             End If
         Next
 
         Return ""
+    End Function
+
+    Public Shared Function GetRegexDefineGroup(MatchDefine As Match) As String()
+        Dim Group1Original As String = MatchDefine.Groups(1).Value
+        Dim Group1Name As String = MatchDefine.Groups(2).Value
+        Dim Group1Value As String = MatchDefine.Groups(3).Value
+
+        Dim Group2Original As String = MatchDefine.Groups(4).Value
+        Dim Group2Name As String = MatchDefine.Groups(5).Value
+        Dim Group2Value As String = MatchDefine.Groups(6).Value
+
+        Dim Group3Original As String = MatchDefine.Groups(7).Value
+        Dim Group3Name As String = MatchDefine.Groups(8).Value
+        Dim Group3Value As String = MatchDefine.Groups(9).Value
+
+        Dim Original As String = ""
+        Dim Name As String = ""
+        Dim Value As String = ""
+
+        If Group1Original.Length >= Original.Length Then Original = Group1Original
+        If Group1Name.Length >= Name.Length Then Name = Group1Name
+        If Group1Value.Length >= Value.Length Then Value = Group1Value
+
+        If Group2Original.Length >= Original.Length Then Original = Group2Original
+        If Group2Name.Length >= Name.Length Then Name = Group2Name
+        If Group2Value.Length >= Value.Length Then Value = Group2Value
+
+        If Group3Original.Length >= Original.Length Then Original = Group3Original
+        If Group3Name.Length >= Name.Length Then Name = Group3Name
+        If Group3Value.Length >= Value.Length Then Value = Group3Value
+
+        Dim Define As String() = {
+            Original,
+            Name,
+            Value
+        }
+
+        Return Define
     End Function
 #End Region
 
@@ -39,33 +72,16 @@ Public Class ClassTranslationDefine
     Public Property Original As String
     Public Property Name As String
     Public Property Value As String
-    Public Property IsAdmin As Boolean = False
-
-    ''' <summary>
-    ''' Returns the original define statement with the value subsituted with the supplied translation.
-    ''' </summary>
-    ''' <param name="Translation">The translation to subsitute the original value with</param>
-    ''' <returns>String</returns>
-    Public Function GetOriginalTranslated(TranslationToUse As String) As String
-        If Me.Value Is "" Then
-            Return Me.Original
-        End If
-
-        Dim Translation As String = Me.Original
-
-        Translation = Translation.Replace(Me.Value, TranslationToUse)
-
-        Return Translation
-    End Function
+    Public Property Filepath As String
 
     Public Function GetContext() As String
-        Dim Context As String = Me.Name
-
-        If IsAdmin Then
-            Context &= " (Admin)"
-        End If
+        Dim Context As String = String.Concat(Me.Filepath.AsSpan(FormMain.Settings.DirectoryShop.Length), " ", Me.Name).Replace("\", "\\")
 
         Return Context
+    End Function
+
+    Public Function GetFilepathForTarget(LanguageSource As ClassLanguage, LanguageTarget As ClassLanguage) As String
+        Return Me.Filepath.Replace(LanguageSource.Name, LanguageTarget.Name)
     End Function
 
     Public Function IsSuitedForPO() As Boolean

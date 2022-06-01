@@ -1,42 +1,36 @@
 ﻿Imports System.IO
-Imports System.Net
 Imports System.Text.RegularExpressions
 
 Public Class FormMain
-    Public Settings As New ClassSettings
+    Public Shared Settings As ClassSettings
 
 #Region "FormEvents"
     Private Sub FormMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Set Shop Path
-        Do While Not Directory.Exists(Settings.DirectoryShop)
+        Do While Settings Is Nothing
             FormSetDirectoryShop.ShowDialog()
         Loop
 
-        ' Set language confs
-        Dim LanguagePaths As String() = Directory.GetDirectories(Settings.DirectoryShop & "\lang", "*", SearchOption.TopDirectoryOnly)
-        Dim LanguageDirectories As New List(Of String)
+        Settings.BackgroundWorkerGetFiles.RunWorkerAsync()
+        Settings.BackgroundWorkerSetLanguage.RunWorkerAsync()
+    End Sub
 
-        For Each LanguagePath As String In LanguagePaths
-            Dim LanguageName As String = Path.GetFileName(LanguagePath)
-            Dim LanguageConf As String = LanguagePath & "\lang_" & LanguageName & ".conf"
+    Private Sub FormMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+        Me.ComboBoxLanguageSource.UseWaitCursor = True
+        Me.ComboBoxLanguageTarget.UseWaitCursor = True
 
-            If File.Exists(LanguageConf) Then
-                LanguageDirectories.Add(LanguagePath)
-            End If
-        Next
-
-        ' Create/Update PO files
-        Settings.Languages = New List(Of ClassLanguage)
-
-        For Each LanguageDirectory As String In LanguageDirectories
-            Settings.Languages.Add(New ClassLanguage(LanguageDirectory))
-        Next
+        Do While Settings.BackgroundWorkerSetLanguage.IsBusy
+            Application.DoEvents()
+        Loop
 
         ' Languages (ComboBoxes)
         For Each Language As ClassLanguage In Settings.Languages
             Me.ComboBoxLanguageSource.Items.Add(Language.Name)
             Me.ComboBoxLanguageTarget.Items.Add(Language.Name)
         Next
+
+        Me.ComboBoxLanguageSource.UseWaitCursor = False
+        Me.ComboBoxLanguageTarget.UseWaitCursor = False
     End Sub
 
     Private Sub ComboBoxLanguageSource_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBoxLanguageSource.SelectedIndexChanged
@@ -77,11 +71,11 @@ Public Class FormMain
 
             Settings.LanguageTarget = LanguageTarget
 
-            ButtonCreatePO_Click(sender, e)
+            Me.ButtonCreatePO_Click(sender, e)
         Next
 
-        ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
-        ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
+        Me.ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
+        Me.ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
     End Sub
 
     Private Sub ButtonUpdateTranslations_Click(sender As Object, e As EventArgs) Handles ButtonUpdateTranslations.Click
@@ -90,8 +84,7 @@ Public Class FormMain
         End If
 
         Me.CreateConf()
-        Me.CreateDefine()
-        Me.CreateDefineAdmin()
+        Me.CreateDefines()
     End Sub
 
     Private Sub ButtonUpdateTranslationsAll_Click(sender As Object, e As EventArgs) Handles ButtonUpdateTranslationsAll.Click
@@ -108,11 +101,11 @@ Public Class FormMain
 
             Settings.LanguageTarget = LanguageTarget
 
-            ButtonUpdateTranslations_Click(sender, e)
+            Me.ButtonUpdateTranslations_Click(sender, e)
         Next
 
-        ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
-        ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
+        Me.ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
+        Me.ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
     End Sub
 
 #End Region
@@ -128,21 +121,21 @@ Public Class FormMain
     End Function
 
     Private Sub CreatePO()
-        Dim Lines As New List(Of String)
-
-        Lines.Add(ClassTranslationPO.WriteLine("", ClassTranslationPO.StringType.MSGID))
-        Lines.Add(ClassTranslationPO.WriteLine("", ClassTranslationPO.StringType.MSGSTR))
-        Lines.Add(ClassTranslationPO.WriteLine("Project-Id-Version: \n"))
-        Lines.Add(ClassTranslationPO.WriteLine("POT-Creation-Date: \n"))
-        Lines.Add(ClassTranslationPO.WriteLine("PO-Revision-Date: \n"))
-        Lines.Add(ClassTranslationPO.WriteLine("Last-Translator: \n"))
-        Lines.Add(ClassTranslationPO.WriteLine("Language-Team: \n"))
-        Lines.Add(ClassTranslationPO.WriteLine("Language: " & Settings.LanguageTarget.Locale & "\n"))
-        Lines.Add(ClassTranslationPO.WriteLine("MIME-Version: 1.0\n"))
-        Lines.Add(ClassTranslationPO.WriteLine("Content-Type: text/plain; charset=UTF-8\n"))
-        Lines.Add(ClassTranslationPO.WriteLine("Content-Transfer-Encoding: 8bit\n"))
-        Lines.Add(ClassTranslationPO.WriteLine("X-Generator: Modified Shop Translate " & Application.ProductVersion))
-        Lines.Add("")
+        Dim Lines As New List(Of String) From {
+            ClassTranslationPO.WriteLine("", ClassTranslationPO.StringType.MSGID),
+            ClassTranslationPO.WriteLine("", ClassTranslationPO.StringType.MSGSTR),
+            ClassTranslationPO.WriteLine("Project-Id-Version: \n"),
+            ClassTranslationPO.WriteLine("POT-Creation-Date: \n"),
+            ClassTranslationPO.WriteLine("PO-Revision-Date: \n"),
+            ClassTranslationPO.WriteLine("Last-Translator: \n"),
+            ClassTranslationPO.WriteLine("Language-Team: \n"),
+            ClassTranslationPO.WriteLine("Language: " & Settings.LanguageTarget.Locale & "\n"),
+            ClassTranslationPO.WriteLine("MIME-Version: 1.0\n"),
+            ClassTranslationPO.WriteLine("Content-Type: text/plain; charset=UTF-8\n"),
+            ClassTranslationPO.WriteLine("Content-Transfer-Encoding: 8bit\n"),
+            ClassTranslationPO.WriteLine("X-Generator: " & Application.ProductName & " " & Application.ProductVersion),
+            ""
+        }
 
         ' Conf
         For Each TranslationConf As ClassTranslationConf In Settings.LanguageSource.TranslationsConf
@@ -166,20 +159,7 @@ Public Class FormMain
                 .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslationForPO(TranslationDefine.Value, TranslationDefine.GetContext()))
             }
 
-            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
-            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.ID, ClassTranslationPO.StringType.MSGID))
-            Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Translation, ClassTranslationPO.StringType.MSGSTR))
-            Lines.Add("")
-        Next
-
-        ' Define Admin
-        For Each TranslationDefineAdmin As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefineAdmin
-            Dim TranslationPO As New ClassTranslationPO With {
-                .Context = ClassTranslationPO.ToPo(TranslationDefineAdmin.GetContext()),
-                .ID = ClassTranslationPO.ToPo(TranslationDefineAdmin.Value),
-                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslationForPO(TranslationDefineAdmin.Value, TranslationDefineAdmin.GetContext()))
-            }
-
+            Lines.Add("# " & TranslationDefine.Name)
             Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
             Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.ID, ClassTranslationPO.StringType.MSGID))
             Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Translation, ClassTranslationPO.StringType.MSGSTR))
@@ -226,53 +206,39 @@ Public Class FormMain
         MessageBox.Show(Filepath & " has been created.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
-    Private Sub CreateDefine()
-        Dim FilepathDefine As String = Settings.LanguageTarget.GetFilepathDefine()
-        Dim FilecontentsDefine As String = File.ReadAllText(FilepathDefine)
+    Private Sub CreateDefines()
+        For Each FilepathDefine As String In Settings.LanguageTarget.FilepathsDefine
+            Dim FilecontentsDefine As String = File.ReadAllText(FilepathDefine)
 
-        For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefine
-            Dim DefineTranslation As String = ClassLanguage.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
+            For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefine
+                Dim DefineTranslation As String = ClassLanguage.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
 
-            Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineSource.Name)
-            Dim RegexOriginal As New Regex(RegexPattern)
-            Dim MatchOriginal As Match = RegexOriginal.Match(FilecontentsDefine)
+                Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineSource.Name)
+                Dim RegexOriginal As New Regex(RegexPattern, RegexOptions.Multiline)
+                Dim MatchOriginal As Match = RegexOriginal.Match(FilecontentsDefine)
 
-            If MatchOriginal.Success AndAlso DefineSource.IsSuitedForPO Then
-                Dim Original As String = MatchOriginal.Groups(0).Value
-                Dim Translation As String = DefineSource.GetOriginalTranslated(ClassTranslationPO.ToDefine(DefineTranslation))
+                If MatchOriginal.Success AndAlso DefineSource.IsSuitedForPO AndAlso FilepathDefine = DefineSource.GetFilepathForTarget(Settings.LanguageSource, Settings.LanguageTarget) Then
+                    Dim Define As String() = ClassTranslationDefine.GetRegexDefineGroup(MatchOriginal)
 
-                FilecontentsDefine = FilecontentsDefine.Replace(Original, Translation)
-            End If
+                    Dim Original As String = Define(0)
+                    Dim Value As String = Define(2)
+
+                    If "" = Value Then
+                        Continue For
+                    End If
+
+                    Dim Translation As String = Original.Replace(Value, ClassTranslationPO.ToDefine(DefineTranslation))
+
+                    FilecontentsDefine = FilecontentsDefine.Replace(Original, Translation)
+                End If
+            Next
+
+            ' Complete
+            File.WriteAllText(FilepathDefine, FilecontentsDefine)
+
+            ' MessageBox.Show(FilepathDefine & " has been created.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
         Next
 
-        ' Complete
-        File.WriteAllText(FilepathDefine, FilecontentsDefine)
-
-        MessageBox.Show(FilepathDefine & " has been created.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
-    End Sub
-
-    Private Sub CreateDefineAdmin()
-        Dim FilepathDefineAdmin As String = Settings.LanguageTarget.GetFilepathDefineAdmin()
-        Dim FilecontentsDefineAdmin As String = File.ReadAllText(FilepathDefineAdmin)
-
-        For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefineAdmin
-            Dim DefineTranslation As String = ClassLanguage.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
-
-            Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineSource.Name)
-            Dim RegexOriginal As New Regex(RegexPattern)
-            Dim MatchOriginal As Match = RegexOriginal.Match(FilecontentsDefineAdmin)
-
-            If MatchOriginal.Success AndAlso DefineSource.IsSuitedForPO Then
-                Dim Original As String = MatchOriginal.Groups(0).Value
-                Dim Translation As String = DefineSource.GetOriginalTranslated(ClassTranslationPO.ToDefine(DefineTranslation))
-
-                FilecontentsDefineAdmin = FilecontentsDefineAdmin.Replace(Original, Translation)
-            End If
-        Next
-
-        ' Complete
-        File.WriteAllText(FilepathDefineAdmin, FilecontentsDefineAdmin)
-
-        MessageBox.Show(FilepathDefineAdmin & " has been created.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show("All translation files updated.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 End Class

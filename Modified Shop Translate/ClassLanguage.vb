@@ -16,6 +16,10 @@ Public Class ClassLanguage
     End Function
 
     Public Shared Function GetTranslationForPO(TextToTranslate As String, Optional Context As String = Nothing) As String
+        If TextToTranslate = "" Then
+            Return ""
+        End If
+
         ' Search Conf
         Dim TranslationConf As String = ClassTranslationConf.GetTranslation(TextToTranslate)
 
@@ -37,26 +41,26 @@ Public Class ClassLanguage
             Return TranslationPO
         End If
 
-        Return ""
+        Return TranslationPO
     End Function
 
     Public Shared Function GetTranslationForDefine(TextToTranslate As String, Optional Context As String = Nothing) As String
         ' Search PO
-        Dim TranslationPO As String = ClassTranslationPO.GetTranslation(TextToTranslate, Context)
+        Dim TranslationPO As String = ClassTranslationPO.FromPO(ClassTranslationPO.GetTranslation(TextToTranslate, Context))
 
         If TranslationPO <> "" Then
             Return TranslationPO
         End If
 
         ' Search Conf
-        Dim TranslationConf As String = ClassTranslationConf.GetTranslation(TextToTranslate)
+        Dim TranslationConf As String = ClassTranslationPO.FromConf(ClassTranslationConf.GetTranslation(TextToTranslate))
 
         If TranslationConf <> "" Then
             Return TranslationConf
         End If
 
         ' Search Define
-        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate, Context)
+        Dim TranslationDefine As String = ClassTranslationPO.FromDefine(ClassTranslationDefine.GetTranslation(TextToTranslate, Context))
 
         If TranslationDefine <> "" Then
             Return TranslationDefine
@@ -273,38 +277,43 @@ Public Class ClassLanguage
         Return TranslationsPO
     End Function
 
-    Private Function GetTranslationsDefine(FilepathDefine As String, IsAdmin As Boolean) As List(Of ClassTranslationDefine)
+    Private Function GetTranslationsDefine() As List(Of ClassTranslationDefine)
         Dim TranslationsDefine As New List(Of ClassTranslationDefine)
 
-        ' Filepaths
-        If Not File.Exists(FilepathDefine) Then
-            Return TranslationsDefine
-        End If
+        ' Regex
+        Dim RegexPattern As New Regex(ClassTranslationDefine.REGEX_DEFINE, RegexOptions.Multiline)
 
-        Dim FilepathDefine_Lines As String() = File.ReadAllLines(FilepathDefine)
+        ' Match
+        Dim MatchesDefine As MatchCollection
 
-        ' Regexes
-        Dim RegexPattern As New Regex(ClassTranslationDefine.REGEX_DEFINE)
+        ' Wait for index
+        Do While FormMain.Settings.BackgroundWorkerGetFiles.IsBusy
+            Threading.Thread.Sleep(1000)
+        Loop
 
-        ' Matches
-        Dim MatchDefine As Match
+        For Each FilepathDefine As String In Me.FilepathsDefine
+            ' Lines
+            Dim FilepathDefineContents As String = File.ReadAllText(FilepathDefine)
 
-        ' Process
-        For Each LineDefine As String In FilepathDefine_Lines
-            MatchDefine = RegexPattern.Match(LineDefine)
+            MatchesDefine = RegexPattern.Matches(FilepathDefineContents)
 
-            If MatchDefine.Success Then
-                Dim TranslationDefine As New ClassTranslationDefine With {
-                    .Original = MatchDefine.Groups(0).Value,
-                    .Name = MatchDefine.Groups(1).Value,
-                    .Value = MatchDefine.Groups(2).Value,
-                    .IsAdmin = IsAdmin
-                }
+            For Each MatchDefine As Match In MatchesDefine
+                If MatchDefine.Success Then
+                    Dim Define As String() = ClassTranslationDefine.GetRegexDefineGroup(MatchDefine)
 
-                If TranslationDefine.IsSuitedForPO Then
-                    TranslationsDefine.Add(TranslationDefine)
+                    Dim TranslationDefine As New ClassTranslationDefine With {
+                        .Filepath = FilepathDefine,
+                        .Original = Define(0),
+                        .Name = Define(1),
+                        .Value = Define(2)
+                    }
+
+                    If TranslationDefine.IsSuitedForPO Then
+                        TranslationsDefine.Add(TranslationDefine)
+                    End If
                 End If
-            End If
+            Next
+
         Next
 
         Return TranslationsDefine
@@ -318,7 +327,8 @@ Public Class ClassLanguage
     Public Property TranslationsConf As New List(Of ClassTranslationConf)
     Public Property TranslationsPO As New List(Of ClassTranslationPO)
     Public Property TranslationsDefine As New List(Of ClassTranslationDefine)
-    Public Property TranslationsDefineAdmin As New List(Of ClassTranslationDefine)
+
+    Public Property FilepathsDefine As New List(Of String)
 
     Public Sub New(Optional LanguageDirectory As String = "")
         If LanguageDirectory Is "" AndAlso Not Directory.Exists(LanguageDirectory) Then
@@ -328,6 +338,7 @@ Public Class ClassLanguage
         ' Directories
         Me.DirectoryPath = LanguageDirectory
         Me.Name = Path.GetFileName(Me.DirectoryPath)
+        Me.FilepathsDefine = Directory.GetFiles(LanguageDirectory, "*.php", SearchOption.AllDirectories).ToList
 
         'For Each Culture As CultureInfo In CultureInfo.GetCultures(CultureTypes.AllCultures)
         '    If Culture.NativeName.ToLower().Contains(Me.Name.ToLower()) _
@@ -353,8 +364,7 @@ Public Class ClassLanguage
         ' Translations
         Me.TranslationsConf = Me.GetTranslationsConf
         Me.TranslationsPO = Me.GetTranslationsPO
-        Me.TranslationsDefine = Me.GetTranslationsDefine(Me.GetFilepathDefine, False)
-        Me.TranslationsDefineAdmin = Me.GetTranslationsDefine(Me.GetFilepathDefineAdmin, True)
+        Me.TranslationsDefine = Me.GetTranslationsDefine
     End Sub
 
     Public Function GetFilepathConf() As String
@@ -365,13 +375,6 @@ Public Class ClassLanguage
         Return Me.DirectoryPath & "\" & Me.Name & ".po"
     End Function
 
-    Public Function GetFilepathDefine() As String
-        Return Me.DirectoryPath & "\" & Me.Name & ".php"
-    End Function
-
-    Public Function GetFilepathDefineAdmin() As String
-        Return Me.DirectoryPath & "\admin\" & Me.Name & ".php"
-    End Function
 #End Region
 
 End Class
