@@ -20,8 +20,11 @@ Public Class ClassTranslationDefine
 
         ' Find Target translation
         For Each TranslationTarget As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefine
-            If TranslationSource.Name = TranslationTarget.Name AndAlso
-               TranslationSource.GetFilepathForTarget(FormMain.Settings.LanguageSource, FormMain.Settings.LanguageTarget) = TranslationTarget.Filepath Then
+            If TranslationSource.GetFilepathTarget <> TranslationTarget.Filepath Then
+                Continue For
+            End If
+
+            If TranslationSource.Name = TranslationTarget.Name Then
                 Return TranslationTarget.Value
             End If
         Next
@@ -80,10 +83,6 @@ Public Class ClassTranslationDefine
         Return Context
     End Function
 
-    Public Function GetFilepathForTarget(LanguageSource As ClassLanguage, LanguageTarget As ClassLanguage) As String
-        Return Me.Filepath.Replace(LanguageSource.Name, LanguageTarget.Name)
-    End Function
-
     Public Function IsSuitedForPO() As Boolean
         ' Regexes
         Dim RegexQuoteSingle As New Regex("'")
@@ -94,6 +93,10 @@ Public Class ClassTranslationDefine
         Dim MatchQuoteSingleEscaped As MatchCollection = RegexQuoteSingleEscaped.Matches(Me.Value)
 
         Return MatchQuoteSingle.Count = MatchQuoteSingleEscaped.Count
+    End Function
+
+    Public Function GetFilepathTarget(Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
+        Return ClassLanguage.GetFilepathTarget(Me.Filepath, LanguageSource, LanguageTarget)
     End Function
 #End Region
 

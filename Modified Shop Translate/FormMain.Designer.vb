@@ -30,6 +30,7 @@ Partial Class FormMain
         Me.ButtonUpdateTranslations = New System.Windows.Forms.Button()
         Me.ButtonCreatePOAll = New System.Windows.Forms.Button()
         Me.ButtonUpdateTranslationsAll = New System.Windows.Forms.Button()
+        Me.BackgroundWorkerUpdateTranslations = New System.ComponentModel.BackgroundWorker()
         Me.SuspendLayout()
         '
         'LabelLanguageSource
@@ -120,6 +121,11 @@ Partial Class FormMain
         Me.ButtonUpdateTranslationsAll.Text = "All"
         Me.ButtonUpdateTranslationsAll.UseVisualStyleBackColor = True
         '
+        'BackgroundWorkerUpdateTranslations
+        '
+        Me.BackgroundWorkerUpdateTranslations.WorkerReportsProgress = True
+        Me.BackgroundWorkerUpdateTranslations.WorkerSupportsCancellation = True
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 15.0!)
@@ -153,4 +159,5 @@ Partial Class FormMain
     Friend WithEvents ButtonUpdateTranslations As Button
     Friend WithEvents ButtonCreatePOAll As Button
     Friend WithEvents ButtonUpdateTranslationsAll As Button
+    Friend WithEvents BackgroundWorkerUpdateTranslations As System.ComponentModel.BackgroundWorker
 End Class

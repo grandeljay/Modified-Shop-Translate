@@ -66,7 +66,7 @@ Public Class ClassLanguage
             Return TranslationDefine
         End If
 
-        Return ""
+        Return TextToTranslate
     End Function
 
     Public Shared Function GetTranslationForConf(TextToTranslate As String, Optional Context As String = Nothing) As String
@@ -91,7 +91,14 @@ Public Class ClassLanguage
             Return TranslationConf
         End If
 
-        Return ""
+        Return TextToTranslate
+    End Function
+
+    Public Shared Function GetFilepathTarget(FilepathSource As String, Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
+        If LanguageSource Is Nothing Then LanguageSource = FormMain.Settings.LanguageSource
+        If LanguageTarget Is Nothing Then LanguageTarget = FormMain.Settings.LanguageTarget
+
+        Return FilepathSource.Replace(LanguageSource.Name, LanguageTarget.Name)
     End Function
 #End Region
 
