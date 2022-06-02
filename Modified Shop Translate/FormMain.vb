@@ -3,7 +3,7 @@ Imports System.IO
 Imports System.Text.RegularExpressions
 
 Public Class FormMain
-    Private ReadOnly LoaderUpdateTranslations As New ClassLoader
+    Private ReadOnly LoaderUpdateTranslations, LoaderUpdateTranslationsAll As New ClassLoader
 
     Public Shared Settings As ClassSettings
 
@@ -86,6 +86,7 @@ Public Class FormMain
             Exit Sub
         End If
 
+        LoaderUpdateTranslations.SetBackgroundWorker(Me.BackgroundWorkerUpdateTranslations)
         LoaderUpdateTranslations.Open()
 
         Me.BackgroundWorkerUpdateTranslations.RunWorkerAsync()
@@ -98,18 +99,10 @@ Public Class FormMain
             Exit Sub
         End If
 
-        For Each LanguageTarget As ClassLanguage In Settings.Languages
-            If Settings.LanguageSource.Locale = LanguageTarget.Locale Then
-                Continue For
-            End If
+        LoaderUpdateTranslationsAll.SetBackgroundWorker(Me.BackgroundWorkerUpdateTranslationsAll)
+        LoaderUpdateTranslationsAll.Open()
 
-            Settings.LanguageTarget = LanguageTarget
-
-            Me.ButtonUpdateTranslations_Click(sender, e)
-        Next
-
-        Me.ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
-        Me.ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
+        Me.BackgroundWorkerUpdateTranslationsAll.RunWorkerAsync()
     End Sub
 
     Private Sub BackgroundWorkerUpdateTranslations_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorkerUpdateTranslations.DoWork
@@ -118,24 +111,45 @@ Public Class FormMain
     End Sub
 
     Private Sub BackgroundWorkerUpdateTranslations_ProgressChanged(sender As Object, e As ProgressChangedEventArgs) Handles BackgroundWorkerUpdateTranslations.ProgressChanged
-        Select Case e.ProgressPercentage
-            Case -1
-                LoaderUpdateTranslations.SetText(e.UserState.ToString)
-        End Select
-
-        Select Case e.UserState.ToString
-            Case "maximum"
-                LoaderUpdateTranslations.SetMaximum(e.ProgressPercentage)
-
-            Case "step"
-                LoaderUpdateTranslations.PerformStep()
-        End Select
+        LoaderUpdateTranslations.BackgroundWorkerLoader_ProgressChanged(sender, e)
     End Sub
 
     Private Sub BackgroundWorkerUpdateTranslations_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorkerUpdateTranslations.RunWorkerCompleted
         LoaderUpdateTranslations.Close()
 
         MessageBox.Show("Finished creating/updating language files.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
+
+    Private Sub BackgroundWorkerUpdateTranslationsAll_DoWork(sender As Object, e As DoWorkEventArgs) Handles BackgroundWorkerUpdateTranslationsAll.DoWork
+        LoaderUpdateTranslationsAll.SetMaximum(Settings.Languages.Count)
+
+        For Each LanguageTarget As ClassLanguage In Settings.Languages
+            LoaderUpdateTranslationsAll.PerformStep()
+
+            If Settings.LanguageSource.Locale = LanguageTarget.Locale Then
+                Continue For
+            End If
+
+            LoaderUpdateTranslationsAll.SetText("Creating/updating language " & Chr(34) & LanguageTarget.Name & Chr(34))
+
+            Settings.LanguageTarget = LanguageTarget
+
+            Me.BackgroundWorkerUpdateTranslations_DoWork(sender, e)
+        Next
+    End Sub
+
+    Private Sub BackgroundWorkerUpdateTranslationsAll_ProgressChanged(sender As Object, e As ProgressChangedEventArgs) Handles BackgroundWorkerUpdateTranslationsAll.ProgressChanged
+        LoaderUpdateTranslationsAll.BackgroundWorkerLoader_ProgressChanged(sender, e)
+    End Sub
+
+    Private Sub BackgroundWorkerUpdateTranslationsAll_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorkerUpdateTranslationsAll.RunWorkerCompleted
+        Me.ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
+        Me.ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
+
+        LoaderUpdateTranslationsAll.Close()
+
+        MessageBox.Show("Finished creating/updating language files.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
+
     End Sub
 #End Region
 
@@ -209,11 +223,11 @@ Public Class FormMain
         Dim CurrentSection As String = ""
         Dim Filepath As String = Settings.LanguageTarget.GetFilepathConf()
 
-        Me.BackgroundWorkerUpdateTranslations.ReportProgress(-1, "Creating/updating " & Chr(34) & Filepath & Chr(34) & "...")
-        Me.BackgroundWorkerUpdateTranslations.ReportProgress(Settings.LanguageTarget.TranslationsPO.Count, "maximum")
+        LoaderUpdateTranslations.SetText("Creating/updating " & Chr(34) & Filepath & Chr(34) & "...")
+        LoaderUpdateTranslations.SetMaximum(Settings.LanguageTarget.TranslationsPO.Count)
 
         For Each TranslationPO As ClassTranslationPO In Settings.LanguageTarget.TranslationsPO
-            Me.BackgroundWorkerUpdateTranslations.ReportProgress(1, "step")
+            LoaderUpdateTranslations.PerformStep()
 
             If TranslationPO.IsFromConf Then
                 Dim TranslationConf As New ClassTranslationConf With {
@@ -238,20 +252,24 @@ Public Class FormMain
     End Sub
 
     Private Sub CreateDefines()
-        Me.BackgroundWorkerUpdateTranslations.ReportProgress(Settings.LanguageSource.FilepathsDefine.Count, "maximum")
+        LoaderUpdateTranslations.SetMaximum(Settings.LanguageSource.FilepathsDefine.Count)
 
+        ' Remove orphans
+        For Each FilepathDefine As String In Settings.LanguageTarget.FilepathsDefine
+            Dim FilepathToCheck As String = ClassLanguage.GetFilepathSource(FilepathDefine)
+
+            If Not File.Exists(FilepathToCheck) Then
+                File.Delete(FilepathDefine)
+            End If
+        Next
+
+        ' Update translations
         For Each FilepathDefine As String In Settings.LanguageSource.FilepathsDefine
             Dim FilepathDefineTarget As String = ClassLanguage.GetFilepathTarget(FilepathDefine)
-            Dim FilecontentsDefineTarget As String
+            Dim FilecontentsDefineTarget As String = File.ReadAllText(FilepathDefine)
 
-            If File.Exists(FilepathDefineTarget) Then
-                FilecontentsDefineTarget = File.ReadAllText(FilepathDefineTarget)
-            Else
-                FilecontentsDefineTarget = File.ReadAllText(FilepathDefine)
-            End If
-
-            Me.BackgroundWorkerUpdateTranslations.ReportProgress(-1, "Creating/updating " & Chr(34) & FilepathDefineTarget.Substring(Settings.DirectoryShop.Length) & Chr(34) & "...")
-            Me.BackgroundWorkerUpdateTranslations.ReportProgress(1, "step")
+            LoaderUpdateTranslations.SetText("Creating/updating " & Chr(34) & FilepathDefineTarget.Substring(Settings.DirectoryShop.Length) & Chr(34) & "...")
+            LoaderUpdateTranslations.PerformStep()
 
             For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefine
                 If FilepathDefineTarget <> DefineSource.GetFilepathTarget Then
@@ -279,6 +297,13 @@ Public Class FormMain
                     FilecontentsDefineTarget = FilecontentsDefineTarget.Replace(Original, Translation)
                 End If
             Next
+
+            ' Create directory
+            Dim DirectoryDefineTarget As String = Directory.GetParent(FilepathDefineTarget).FullName
+
+            If Not Directory.Exists(DirectoryDefineTarget) Then
+                Directory.CreateDirectory(DirectoryDefineTarget)
+            End If
 
             ' Complete
             File.WriteAllText(FilepathDefineTarget, FilecontentsDefineTarget)

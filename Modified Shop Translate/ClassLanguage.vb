@@ -94,6 +94,13 @@ Public Class ClassLanguage
         Return TextToTranslate
     End Function
 
+    Public Shared Function GetFilepathSource(FilepathTarget As String, Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
+        If LanguageSource Is Nothing Then LanguageSource = FormMain.Settings.LanguageSource
+        If LanguageTarget Is Nothing Then LanguageTarget = FormMain.Settings.LanguageTarget
+
+        Return FilepathTarget.Replace(LanguageTarget.Name, LanguageSource.Name)
+    End Function
+
     Public Shared Function GetFilepathTarget(FilepathSource As String, Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
         If LanguageSource Is Nothing Then LanguageSource = FormMain.Settings.LanguageSource
         If LanguageTarget Is Nothing Then LanguageTarget = FormMain.Settings.LanguageTarget
