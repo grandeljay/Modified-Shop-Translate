@@ -5,13 +5,17 @@ Public Class ClassLoader
 
     Private BackgroundWorkerLoader As BackgroundWorker
 
-    Public Sub Open()
+    Public Sub Show()
         Me.Loader.Show()
     End Sub
 
-    Public Sub Close()
-        Me.Loader.Close()
+    Public Sub Hide()
+        Me.Loader.Hide()
     End Sub
+
+    Private Function IsActive() As Boolean
+        Return Loader.Visible
+    End Function
 
     Public Sub SetBackgroundWorker(ByRef BackgroundWorkerLoader As BackgroundWorker)
         Me.BackgroundWorkerLoader = BackgroundWorkerLoader
@@ -21,10 +25,12 @@ Public Class ClassLoader
         Me.Loader.LabelText.Text = Text
     End Sub
     Public Sub SetText(Text As String)
-        If BackgroundWorkerLoader Is Nothing Then
+        If Not Me.IsActive Then Exit Sub
+
+        If Me.BackgroundWorkerLoader Is Nothing Then
             Me._SetText(Text)
         Else
-            BackgroundWorkerLoader.ReportProgress(-1, Text)
+            Me.BackgroundWorkerLoader.ReportProgress(-1, Text)
         End If
     End Sub
 
@@ -35,10 +41,12 @@ Public Class ClassLoader
     End Sub
 
     Public Sub SetMaximum(Maximum As Integer)
-        If BackgroundWorkerLoader Is Nothing Then
+        If Not Me.IsActive Then Exit Sub
+
+        If Me.BackgroundWorkerLoader Is Nothing Then
             Me._SetMaximum(Maximum)
         Else
-            BackgroundWorkerLoader.ReportProgress(Maximum, "maximum")
+            Me.BackgroundWorkerLoader.ReportProgress(Maximum, "maximum")
         End If
     End Sub
 
@@ -47,10 +55,12 @@ Public Class ClassLoader
     End Sub
 
     Public Sub PerformStep()
-        If BackgroundWorkerLoader Is Nothing Then
+        If Not Me.IsActive Then Exit Sub
+
+        If Me.BackgroundWorkerLoader Is Nothing Then
             Me._PerformStep()
         Else
-            BackgroundWorkerLoader.ReportProgress(1, "step")
+            Me.BackgroundWorkerLoader.ReportProgress(1, "step")
         End If
     End Sub
 

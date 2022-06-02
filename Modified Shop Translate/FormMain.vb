@@ -87,7 +87,7 @@ Public Class FormMain
         End If
 
         LoaderUpdateTranslations.SetBackgroundWorker(Me.BackgroundWorkerUpdateTranslations)
-        LoaderUpdateTranslations.Open()
+        LoaderUpdateTranslations.Show()
 
         Me.BackgroundWorkerUpdateTranslations.RunWorkerAsync()
     End Sub
@@ -100,7 +100,7 @@ Public Class FormMain
         End If
 
         LoaderUpdateTranslationsAll.SetBackgroundWorker(Me.BackgroundWorkerUpdateTranslationsAll)
-        LoaderUpdateTranslationsAll.Open()
+        LoaderUpdateTranslationsAll.Show()
 
         Me.BackgroundWorkerUpdateTranslationsAll.RunWorkerAsync()
     End Sub
@@ -115,7 +115,7 @@ Public Class FormMain
     End Sub
 
     Private Sub BackgroundWorkerUpdateTranslations_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorkerUpdateTranslations.RunWorkerCompleted
-        LoaderUpdateTranslations.Close()
+        LoaderUpdateTranslations.Hide()
 
         MessageBox.Show("Finished creating/updating language files.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
@@ -146,10 +146,9 @@ Public Class FormMain
         Me.ComboBoxLanguageSource_SelectedIndexChanged(sender, e)
         Me.ComboBoxLanguageTarget_SelectedIndexChanged(sender, e)
 
-        LoaderUpdateTranslationsAll.Close()
+        LoaderUpdateTranslationsAll.Hide()
 
         MessageBox.Show("Finished creating/updating language files.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
-
     End Sub
 #End Region
 
