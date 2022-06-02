@@ -135,6 +135,9 @@ Public Class ClassTranslationPO
     Public Shared Function ToDefine(StringToConvert As String) As String
         Const EscapeChracter As String = "\"
 
+        ' Convert HTML entities      
+        StringToConvert = WebUtility.HtmlDecode(StringToConvert)
+
         ' Remove slashes
         Dim ChractersToUnescape As New List(Of String) From {
             "'"

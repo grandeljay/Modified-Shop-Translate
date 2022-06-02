@@ -18,6 +18,10 @@ Public Class ClassTranslationDefine
             End If
         Next
 
+        If TranslationSource Is Nothing Then
+            Return TextToTranslate
+        End If
+
         ' Find Target translation
         For Each TranslationTarget As ClassTranslationDefine In FormMain.Settings.LanguageTarget.TranslationsDefine
             If TranslationSource.GetFilepathTarget <> TranslationTarget.Filepath Then

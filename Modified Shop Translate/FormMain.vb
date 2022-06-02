@@ -254,24 +254,62 @@ Public Class FormMain
         LoaderUpdateTranslations.SetMaximum(Settings.LanguageSource.FilepathsDefine.Count)
 
         ' Remove orphans
-        For Each FilepathDefine As String In Settings.LanguageTarget.FilepathsDefine
-            Dim FilepathToCheck As String = ClassLanguage.GetFilepathSource(FilepathDefine)
+        For Each FilepathDefineTarget As String In Settings.LanguageTarget.FilepathsDefine
+            ' Files
+            Dim FilepathDefineSource As String = ClassLanguage.GetFilepathSource(FilepathDefineTarget)
 
-            If Not File.Exists(FilepathToCheck) Then
-                File.Delete(FilepathDefine)
+            If Not File.Exists(FilepathDefineSource) Then
+                File.Delete(FilepathDefineTarget)
+
+                Continue For
             End If
+
+            ' Defines
+            Dim FilecontentsDefineSource As String = File.ReadAllText(FilepathDefineSource)
+            Dim FilecontentsDefineTarget As String = File.ReadAllText(FilepathDefineTarget)
+
+            For Each DefineTarget As ClassTranslationDefine In Settings.LanguageTarget.TranslationsDefine
+                If DefineTarget.Filepath <> FilepathDefineTarget Then
+                    Continue For
+                End If
+
+                Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineTarget.Name)
+                Dim RegexOriginal As New Regex(RegexPattern, RegexOptions.Multiline)
+                Dim SourceMatch As Match = RegexOriginal.Match(FilecontentsDefineSource)
+                Dim TargetMatch As Match = RegexOriginal.Match(FilecontentsDefineTarget)
+
+                If Not SourceMatch.Success AndAlso TargetMatch.Success Then
+                    Dim Define As String() = ClassTranslationDefine.GetRegexDefineGroup(TargetMatch)
+                    Dim Original As String = Define(0)
+
+                    FilecontentsDefineTarget = FilecontentsDefineTarget.Replace(Original & vbLf, "")
+                    FilecontentsDefineTarget = FilecontentsDefineTarget.Replace(Original & vbCrLf, "")
+                    FilecontentsDefineTarget = FilecontentsDefineTarget.Replace(Original, "")
+                End If
+            Next
+
+            File.WriteAllText(FilepathDefineTarget, FilecontentsDefineTarget)
         Next
 
         ' Update translations
         For Each FilepathDefine As String In Settings.LanguageSource.FilepathsDefine
             Dim FilepathDefineTarget As String = ClassLanguage.GetFilepathTarget(FilepathDefine)
-            Dim FilecontentsDefineTarget As String = File.ReadAllText(FilepathDefine)
+
+            Dim FilecontentsDefine As String
+            Dim FilecontentsDefineSource As String = File.ReadAllText(FilepathDefine)
+            Dim FilecontentsDefineTarget As String = File.ReadAllText(FilepathDefineTarget)
+
+            If File.Exists(FilepathDefineTarget) Then
+                FilecontentsDefine = FilecontentsDefineTarget
+            Else
+                FilecontentsDefine = FilecontentsDefineSource
+            End If
 
             LoaderUpdateTranslations.SetText("Creating/updating " & Chr(34) & FilepathDefineTarget.Substring(Settings.DirectoryShop.Length) & Chr(34) & "...")
             LoaderUpdateTranslations.PerformStep()
 
             For Each DefineSource As ClassTranslationDefine In Settings.LanguageSource.TranslationsDefine
-                If FilepathDefineTarget <> DefineSource.GetFilepathTarget Then
+                If FilepathDefineTarget <> DefineSource.GetFilepathTarget OrElse Not DefineSource.IsSuitedForPO Then
                     Continue For
                 End If
 
@@ -279,9 +317,10 @@ Public Class FormMain
 
                 Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineSource.Name)
                 Dim RegexOriginal As New Regex(RegexPattern, RegexOptions.Multiline)
-                Dim MatchOriginal As Match = RegexOriginal.Match(FilecontentsDefineTarget)
+                Dim MatchOriginal As Match = RegexOriginal.Match(FilecontentsDefine)
 
-                If MatchOriginal.Success AndAlso DefineSource.IsSuitedForPO Then
+                If MatchOriginal.Success Then
+                    ' Replace translation
                     Dim Define As String() = ClassTranslationDefine.GetRegexDefineGroup(MatchOriginal)
 
                     Dim Original As String = Define(0)
@@ -293,7 +332,19 @@ Public Class FormMain
 
                     Dim Translation As String = Original.Replace(Value, ClassTranslationPO.ToDefine(DefineTranslation))
 
-                    FilecontentsDefineTarget = FilecontentsDefineTarget.Replace(Original, Translation)
+                    FilecontentsDefine = FilecontentsDefine.Replace(Original, Translation)
+                Else
+                    ' Insert translation
+                    Dim Define As String = "define('" & DefineSource.Name & "', '" & ClassTranslationPO.ToDefine(DefineTranslation) & "');"
+
+                    If FilecontentsDefine.Trim.EndsWith("?>") Then
+                        Dim PositionEndOfFile As Integer = FilecontentsDefine.LastIndexOf("?>")
+                        Dim PositionSourceFile As Integer = FilecontentsDefineSource.IndexOf(DefineSource.Original)
+
+                        FilecontentsDefine = FilecontentsDefine.Insert(PositionEndOfFile, Define & vbLf)
+                    Else
+                        FilecontentsDefine = FilecontentsDefine.TrimEnd & vbLf & Define & vbLf
+                    End If
                 End If
             Next
 
@@ -305,7 +356,7 @@ Public Class FormMain
             End If
 
             ' Complete
-            File.WriteAllText(FilepathDefineTarget, FilecontentsDefineTarget)
+            File.WriteAllText(FilepathDefineTarget, FilecontentsDefine)
         Next
     End Sub
 
