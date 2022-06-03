@@ -41,7 +41,7 @@ Public Class ClassLanguage
             Return TranslationPO
         End If
 
-        Return TranslationPO
+        Return ""
     End Function
 
     Public Shared Function GetTranslationForDefine(TextToTranslate As String, Optional Context As String = Nothing) As String
