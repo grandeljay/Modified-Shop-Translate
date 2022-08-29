@@ -184,7 +184,7 @@ Public Class FormMain
             Dim TranslationPO As New ClassTranslationPO With {
                 .Context = ClassTranslationPO.ToPo(TranslationConf.GetContext()),
                 .ID = ClassTranslationPO.ToPo(TranslationConf.Value),
-                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslationForPO(TranslationConf.Value, TranslationConf.GetContext()))
+                .Translation = ClassTranslationPO.ToPo(ClassTranslation.GetTranslationForPO(TranslationConf.Value, TranslationConf.GetContext()))
             }
 
             Lines.Add(ClassTranslationPO.WriteLine(TranslationPO.Context, ClassTranslationPO.StringType.MSGCTXT))
@@ -198,7 +198,7 @@ Public Class FormMain
             Dim TranslationPO As New ClassTranslationPO With {
                 .Context = ClassTranslationPO.ToPo(TranslationDefine.GetContext()),
                 .ID = ClassTranslationPO.ToPo(TranslationDefine.Value),
-                .Translation = ClassTranslationPO.ToPo(ClassLanguage.GetTranslationForPO(TranslationDefine.Value, TranslationDefine.GetContext()))
+                .Translation = ClassTranslationPO.ToPo(ClassTranslation.GetTranslationForPO(TranslationDefine.Value, TranslationDefine.GetContext()))
             }
 
             Lines.Add("# " & TranslationDefine.Name)
@@ -292,17 +292,15 @@ Public Class FormMain
         Next
 
         ' Update translations
-        For Each FilepathDefine As String In Settings.LanguageSource.FilepathsDefine
-            Dim FilepathDefineTarget As String = ClassLanguage.GetFilepathTarget(FilepathDefine)
+        For Each FilepathDefineSource As String In Settings.LanguageSource.FilepathsDefine
+            Dim FilepathDefineTarget As String = ClassLanguage.GetFilepathTarget(FilepathDefineSource)
 
             Dim FilecontentsDefine As String
-            Dim FilecontentsDefineSource As String = File.ReadAllText(FilepathDefine)
-            Dim FilecontentsDefineTarget As String = File.ReadAllText(FilepathDefineTarget)
 
             If File.Exists(FilepathDefineTarget) Then
-                FilecontentsDefine = FilecontentsDefineTarget
+                FilecontentsDefine = File.ReadAllText(FilepathDefineTarget)
             Else
-                FilecontentsDefine = FilecontentsDefineSource
+                FilecontentsDefine = File.ReadAllText(FilepathDefineSource)
             End If
 
             LoaderUpdateTranslations.SetText("Creating/updating " & Chr(34) & FilepathDefineTarget.Substring(Settings.DirectoryShop.Length) & Chr(34) & "...")
@@ -313,7 +311,7 @@ Public Class FormMain
                     Continue For
                 End If
 
-                Dim DefineTranslation As String = ClassLanguage.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
+                Dim DefineTranslation As String = ClassTranslation.GetTranslationForDefine(DefineSource.Value, DefineSource.GetContext)
 
                 Dim RegexPattern As String = ClassTranslationDefine.REGEX_DEFINE.Replace(ClassTranslationDefine.REGEX_DEFINE_CONSTANT, DefineSource.Name)
                 Dim RegexOriginal As New Regex(RegexPattern, RegexOptions.Multiline)
@@ -339,7 +337,6 @@ Public Class FormMain
 
                     If FilecontentsDefine.Trim.EndsWith("?>") Then
                         Dim PositionEndOfFile As Integer = FilecontentsDefine.LastIndexOf("?>")
-                        Dim PositionSourceFile As Integer = FilecontentsDefineSource.IndexOf(DefineSource.Original)
 
                         FilecontentsDefine = FilecontentsDefine.Insert(PositionEndOfFile, Define & vbLf)
                     Else

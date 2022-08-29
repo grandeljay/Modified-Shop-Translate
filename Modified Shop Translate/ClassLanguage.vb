@@ -1,6 +1,5 @@
 ﻿Imports System.IO
 Imports System.Text.RegularExpressions
-Imports System.Net
 
 Public Class ClassLanguage
 
@@ -13,85 +12,6 @@ Public Class ClassLanguage
         Next
 
         Throw New System.Exception("Unable to find language " & Chr(34) & LanguageNameToFind & Chr(34) & ".")
-    End Function
-
-    Public Shared Function GetTranslationForPO(TextToTranslate As String, Optional Context As String = Nothing) As String
-        If TextToTranslate = "" Then
-            Return ""
-        End If
-
-        ' Search Conf
-        Dim TranslationConf As String = ClassTranslationConf.GetTranslation(TextToTranslate)
-
-        If TranslationConf <> "" Then
-            Return TranslationConf
-        End If
-
-        ' Search Defines
-        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate, Context)
-
-        If TranslationDefine <> "" Then
-            Return TranslationDefine
-        End If
-
-        ' Search PO
-        Dim TranslationPO As String = ClassTranslationPO.GetTranslation(TextToTranslate, Context)
-
-        If TranslationPO <> "" Then
-            Return TranslationPO
-        End If
-
-        Return ""
-    End Function
-
-    Public Shared Function GetTranslationForDefine(TextToTranslate As String, Optional Context As String = Nothing) As String
-        ' Search PO
-        Dim TranslationPO As String = ClassTranslationPO.FromPO(ClassTranslationPO.GetTranslation(TextToTranslate, Context))
-
-        If TranslationPO <> "" Then
-            Return TranslationPO
-        End If
-
-        ' Search Conf
-        Dim TranslationConf As String = ClassTranslationPO.FromConf(ClassTranslationConf.GetTranslation(TextToTranslate))
-
-        If TranslationConf <> "" Then
-            Return TranslationConf
-        End If
-
-        ' Search Define
-        Dim TranslationDefine As String = ClassTranslationPO.FromDefine(ClassTranslationDefine.GetTranslation(TextToTranslate, Context))
-
-        If TranslationDefine <> "" Then
-            Return TranslationDefine
-        End If
-
-        Return TextToTranslate
-    End Function
-
-    Public Shared Function GetTranslationForConf(TextToTranslate As String, Optional Context As String = Nothing) As String
-        ' Search PO
-        Dim TranslationPO As String = ClassTranslationPO.GetTranslation(TextToTranslate, Context)
-
-        If TranslationPO <> "" Then
-            Return TranslationPO
-        End If
-
-        ' Search Define
-        Dim TranslationDefine As String = ClassTranslationDefine.GetTranslation(TextToTranslate, Context)
-
-        If TranslationDefine <> "" Then
-            Return TranslationDefine
-        End If
-
-        ' Search Conf
-        Dim TranslationConf As String = ClassTranslationConf.GetTranslation(TextToTranslate)
-
-        If TranslationConf <> "" Then
-            Return TranslationConf
-        End If
-
-        Return TextToTranslate
     End Function
 
     Public Shared Function GetFilepathSource(FilepathTarget As String, Optional LanguageSource As ClassLanguage = Nothing, Optional LanguageTarget As ClassLanguage = Nothing) As String
@@ -337,8 +257,10 @@ Public Class ClassLanguage
 #Region "Public"
     Public Property Name As String
     Public Property Locale As String
+    Public Property DeepLLanguage As DeepL.Language
 
     Public Property TranslationsConf As New List(Of ClassTranslationConf)
+    Public Property TranslationsConfCustom As New List(Of ClassTranslationConf)
     Public Property TranslationsPO As New List(Of ClassTranslationPO)
     Public Property TranslationsDefine As New List(Of ClassTranslationDefine)
 
@@ -364,13 +286,34 @@ Public Class ClassLanguage
         'Next
 
         Select Case Me.Name.ToLower()
-            Case "bulgarian" : Me.Locale = "bg_BG"
-            Case "english" : Me.Locale = "en_GB"
-            Case "french" : Me.Locale = "fr_FR"
-            Case "german" : Me.Locale = "de_DE"
-            Case "italian" : Me.Locale = "it_IT"
-            Case "polish" : Me.Locale = "pl_PL"
-            Case "spanish" : Me.Locale = "es_ES"
+            Case "bulgarian"
+                Me.Locale = "bg_BG"
+                Me.DeepLLanguage = DeepL.Language.Bulgarian
+
+            Case "english"
+                Me.Locale = "en_GB"
+                Me.DeepLLanguage = DeepL.Language.BritishEnglish
+
+            Case "french"
+                Me.Locale = "fr_FR"
+                Me.DeepLLanguage = DeepL.Language.French
+
+            Case "german"
+                Me.Locale = "de_DE"
+                Me.DeepLLanguage = DeepL.Language.German
+
+            Case "italian"
+                Me.Locale = "it_IT"
+                Me.DeepLLanguage = DeepL.Language.Italian
+
+            Case "polish"
+                Me.Locale = "pl_PL"
+                Me.DeepLLanguage = DeepL.Language.Polish
+
+            Case "spanish"
+                Me.Locale = "es_ES"
+                Me.DeepLLanguage = DeepL.Language.Spanish
+
             Case Else
                 Throw New System.Exception("There is no known locale for language " & Me.Name & ". Please improve the source code.")
         End Select

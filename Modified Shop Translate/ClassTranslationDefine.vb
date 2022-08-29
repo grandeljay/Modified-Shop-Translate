@@ -7,7 +7,7 @@ Public Class ClassTranslationDefine
     Public Const REGEX_DEFINE As String = REGEX_DEFINE_BASE & "[\n\r/]|" & REGEX_DEFINE_BASE & "$|" & REGEX_DEFINE_BASE
 
 #Region "Static"
-    Public Shared Function GetTranslation(TextToTranslate As String, Context As String) As String
+    Public Shared Function GetTranslation(TextToTranslate As String, Optional Context As String = Nothing) As String
         ' Find Source translations
         Dim TranslationSource As ClassTranslationDefine = Nothing
 
@@ -19,7 +19,7 @@ Public Class ClassTranslationDefine
         Next
 
         If TranslationSource Is Nothing Then
-            Return TextToTranslate
+            Return ""
         End If
 
         ' Find Target translation

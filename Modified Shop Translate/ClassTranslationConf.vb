@@ -2,7 +2,7 @@
 Public Class ClassTranslationConf
 
 #Region "Static"
-    Public Shared Function GetTranslation(TextToTranslate As String) As String
+    Public Shared Function GetTranslation(TextToTranslate As String, Optional Context As String = Nothing) As String
         For Each SourceConf As ClassTranslationConf In FormMain.Settings.LanguageSource.TranslationsConf
             If TextToTranslate Is SourceConf.Value Then
                 ' Search target
