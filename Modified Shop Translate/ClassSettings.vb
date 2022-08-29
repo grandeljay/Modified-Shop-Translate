@@ -9,7 +9,7 @@ Public Class ClassSettings
     End Sub
 
     Private Sub BackgroundWorkerSetLanguage_ProgressChanged(sender As Object, e As ProgressChangedEventArgs)
-        ' Beep()
+
     End Sub
 
     Private Sub BackgroundWorkerSetLanguage_DoWork(sender As Object, e As DoWorkEventArgs)
@@ -45,6 +45,8 @@ Public Class ClassSettings
     Public Property LanguageSource As ClassLanguage
     Public Property LanguageTarget As ClassLanguage
 
+    Public Property DeepLAPIKey As String
+
     Sub New(ShopRoot As String)
         ' Root
         Me.DirectoryShop = ShopRoot
@@ -63,5 +65,12 @@ Public Class ClassSettings
         AddHandler BackgroundWorkerGetFiles.DoWork, AddressOf Me.BackgroundWorkerGetFiles_DoWork
         AddHandler BackgroundWorkerSetLanguage.DoWork, AddressOf Me.BackgroundWorkerSetLanguage_DoWork
         AddHandler BackgroundWorkerSetLanguage.ProgressChanged, AddressOf Me.BackgroundWorkerSetLanguage_ProgressChanged
+
+        ' DeepL API Key
+        Dim DeepLAPIKeyFilepath As String = "D:\Documents\deepl-api-key.txt"
+
+        If File.Exists(DeepLAPIKeyFilepath) Then
+            Me.DeepLAPIKey = File.ReadAllText(DeepLAPIKeyFilepath).Trim()
+        End If
     End Sub
 End Class

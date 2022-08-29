@@ -48,6 +48,24 @@ Public Class ClassTranslation
             Return TranslationPOAlt
         End If
 
+        ' 3. Translate via DeepL
+        '
+        Using Client As DeepLClient = New DeepLClient(FormMain.Settings.DeepLAPIKey, useFreeApi:=True)
+            Try
+                Dim Translation As Translation = Client.TranslateAsync(
+                    TextToTranslate,
+                    FormMain.Settings.LanguageSource.DeepLLanguage,
+                    FormMain.Settings.LanguageTarget.DeepLLanguage,
+                    DeepL.Splitting.None,
+                    True
+                ).Result
+
+                Return Translation.Text
+            Catch exception As DeepLException
+                Console.WriteLine($"An error occurred: {exception.Message}")
+            End Try
+        End Using
+
         ' 4. Fallback to Source
         '
         Return TextToTranslate
@@ -104,6 +122,24 @@ Public Class ClassTranslation
             Return TranslationDefineAlt
         End If
 
+        ' 3. Translate via DeepL
+        '
+        Using Client As DeepLClient = New DeepLClient(FormMain.Settings.DeepLAPIKey, useFreeApi:=True)
+            Try
+                Dim Translation As Translation = Client.TranslateAsync(
+                    TextToTranslate,
+                    FormMain.Settings.LanguageSource.DeepLLanguage,
+                    FormMain.Settings.LanguageTarget.DeepLLanguage,
+                    DeepL.Splitting.None,
+                    True
+                ).Result
+
+                Return Translation.Text
+            Catch exception As DeepLException
+                Console.WriteLine($"An error occurred: {exception.Message}")
+            End Try
+        End Using
+
         ' 4. Fallback to Source
         '
         Return TextToTranslate
@@ -159,6 +195,24 @@ Public Class ClassTranslation
         If TranslationConfAlt <> "" Then
             Return TranslationConfAlt
         End If
+
+        ' 3. Translate via DeepL
+        '
+        Using Client As DeepLClient = New DeepLClient(FormMain.Settings.DeepLAPIKey, useFreeApi:=True)
+            Try
+                Dim Translation As Translation = Client.TranslateAsync(
+                    TextToTranslate,
+                    FormMain.Settings.LanguageSource.DeepLLanguage,
+                    FormMain.Settings.LanguageTarget.DeepLLanguage,
+                    DeepL.Splitting.None,
+                    True
+                ).Result
+
+                Return Translation.Text
+            Catch exception As DeepLException
+                Console.WriteLine($"An error occurred: {exception.Message}")
+            End Try
+        End Using
 
         ' 4. Fallback to Source
         '
